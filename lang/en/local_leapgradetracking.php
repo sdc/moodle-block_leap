@@ -15,13 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'tool_sdctools', language 'en'.
+ * Strings for component 'local_leapgradetracking', language 'en'.
  *
- * @package    local_sdcgradetracking
+ * @package    local_leapgradetracking
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 global $CFG;
 
-$string['pluginname']   = 'SDC Grade Tracking';
+$string['pluginname']   = 'Leap Grade Tracking';

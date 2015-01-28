@@ -1,6 +1,6 @@
 <?php
 
-namespace local_sdcgradetracking\task;
+namespace local_leapgradetracking\task;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -27,15 +27,15 @@ class overnight extends \core\task\scheduled_task {
 
     public function get_name() {
         // Shown in admin screens.
-        return get_string('pluginname', 'local_sdcgradetracking');
+        return get_string('pluginname', 'local_leapgradetracking');
     }
 
     // A little function to make the db log look nice.
     public function tlog( $msg, $type = 'ok' ) {
         global $DB;
-        $tmp = $DB->insert_record( 'sdcgradetracking_log', array( $type, $msg ) );
-        //if ( !$DB->insert_record('sdcgradetracking_log', array( $type, $msg ) ) ) {
-        //    echo 'Failed to insert a log into the sdcgradetracking_log table.';
+        $tmp = $DB->insert_record( 'leapgradetracking_log', array( $type, $msg ) );
+        //if ( !$DB->insert_record('leapgradetracking_log', array( $type, $msg ) ) ) {
+        //    echo 'Failed to insert a log into the leapgradetracking_log table.';
         //}
     }
 

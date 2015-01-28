@@ -17,7 +17,7 @@
 /**
  * Version details.
  *
- * @package    local_sdcgradetracking
+ * @package    local_leapgradetracking
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version    = 2015012700;
 $plugin->requires   = 2014051200;       // Requires Moodle 2.7 or newer.
-$plugin->component  = 'local_sdcgradetracking';
+$plugin->component  = 'local_leapgradetracking';
 $plugin->maturity   = MATURITY_ALPHA;
 $plugin->release    = '0.0.1';
 //$plugin->cron       = 60;
