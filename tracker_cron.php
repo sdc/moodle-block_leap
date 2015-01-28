@@ -53,12 +53,15 @@ define( 'CATNAME', 'Targets' );
 require(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once $CFG->dirroot.'/grade/lib.php';
 
+/*
 // Check for the required config setting in config.php.
 if ( !$CFG->trackerhash ) {
     tlog( '$CFG->trackerhash not set in config.php.', 'EROR' );
     exit(1);
 }
+*/
 
+/*
 // Logging array for the end-of-script summary.
 $logging = array(
     'courses'               => array(),     // For each course which has been processed (key is id).
@@ -88,7 +91,9 @@ $logging = array(
         'poor_grades'           => 0,       // Integer number of poorly-graded students processed.
     ),
 );
+*/
 
+/*
 $l3va_data = array(
     'leapcore_a2_artdes'        => array('m' => 4.4727, 'c' => 98.056),
     'leapcore_a2_artdesphoto'   => array('m' => 4.1855, 'c' => 79.949),
@@ -121,13 +126,17 @@ $l3va_data = array(
     'btec'                      => array('m' => 3.9, 'c' => 90),
 
 );
+*/
 
+/*
 // Small array to store the GCSE English and maths grades from the JSON.
 $gcse = array(
     'english'   => null,
     'maths'     => null,
 );
+*/
 
+/*
 // A little function to make the output look nice.
 function tlog($msg, $type = 'ok') {
 
@@ -135,6 +144,7 @@ function tlog($msg, $type = 'ok') {
     echo $out . ' ' . $msg . "\n";
 
 }
+*/
 
 /**
  * Process the L3VA score into a MAG.
@@ -144,6 +154,7 @@ function tlog($msg, $type = 'ok') {
  * @param scale     Scale to use for this course
  * @param tag       If true, make the TAG instead of MAG
  */
+/*
 function make_mag( $in, $course = 'leapcore_default', $scale = 'BTEC', $tag = false ) {
 
     //if ( $in == '' || !is_numeric($in) || $in <= 0 || !$in ) {
@@ -256,6 +267,7 @@ function make_mag( $in, $course = 'leapcore_default', $scale = 'BTEC', $tag = fa
     return array( $score, $adj_l3va );
 
 }
+*/
 
 
 // Just for internal use, defines the grade type (int) and what it is (string).
