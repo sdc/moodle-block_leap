@@ -19,8 +19,8 @@ $time_start = microtime(true);
 // Null or an int (course's id): run the script only for this course. For testing or one-offs.
 $thiscourse = null; // null or e.g. 1234
 
-$version    = '1.0.18';
-$build      = '20141217';
+$version    = '1.0.19';
+$build      = '20150128';
 
 tlog( 'GradeTracker script, v' . $version . ', ' . $build . '.', 'hiya' );
 tlog( 'Started at ' . date( 'c', $time_start ) . '.', ' go ' );

@@ -14,7 +14,7 @@ class overnight extends \core\task\scheduled_task {
 
     const VERSION       = '1.0.18';
     const BUILD         = '20141217';
-    // Sample Leap Tracker API URL.
+    // Sample Leap Tracker API URL. TODO: Change this to a user-configurable setting.
     const LEAP_TRACKER_API = 'http://leap.southdevon.ac.uk/people/%s.json?token=%s';
     // Number of decimal places in the processed targets (and elsewhere).
     const DECIMALS      = 3;
@@ -23,6 +23,8 @@ class overnight extends \core\task\scheduled_task {
     //const IDNUMBERLIKE = 'leapcore_test';
     // Category details for the above columns to go into.
     const CATNAME       = 'Targets';
+    // If set, truncate the log table.
+    const TRUNCATE_LOG  = true;
 
 
     public function get_name() {
@@ -33,24 +35,37 @@ class overnight extends \core\task\scheduled_task {
     // A little function to make the db log look nice.
     public function tlog( $msg, $type = 'ok' ) {
         global $DB;
-        $tmp = $DB->insert_record( 'leapgradetracking_log', array( $type, $msg ) );
+        $tmp = $DB->insert_record( 'leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
         //if ( !$DB->insert_record('leapgradetracking_log', array( $type, $msg ) ) ) {
         //    echo 'Failed to insert a log into the leapgradetracking_log table.';
         //}
     }
 
     public function execute() {
-        
+        global $CFG, $DB;
+
         // Script start time.
-        $time_start = microtime(true);
+        $time_start = microtime( true );
+
+        echo "BEGIN >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n";
+
+        // Truncate the log table.
+//        if ( overnight::TRUNCATE_LOG ) {
+            //$tmp = $DB->delete_records( 'leapgradetracking_log', array( 'id' => '*' ) );
+            echo "Truncating leapgradetracking_log\n";
+            $DB->delete_records( 'leapgradetracking_log', null );   
+            echo "...done.\n";
+//        }
 
         overnight::tlog( 'GradeTracker script, v' . overnight::VERSION . ', ' . overnight::BUILD . '.', 'hiya' );
-        overnight::tlog( 'Started at ' . date( 'c', overnight::TIME_START ) . '.', ' go ' );
+        overnight::tlog( 'Started at ' . date( 'c', $time_start ) . '.', ' go ' );
         if ( overnight::THIS_COURSE ) {
             overnight::tlog( 'IMPORTANT! Processing only course \'' . overnight::THIS_COURSE . '\'.', 'warn' );
         }
         overnight::tlog( '', '----' );
 
+
+        echo "\nEND   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 
     } // END method execute.
 
