@@ -269,7 +269,7 @@ function make_mag( $in, $course = 'leapcore_default', $scale = 'BTEC', $tag = fa
 }
 */
 
-
+/*
 // Just for internal use, defines the grade type (int) and what it is (string).
 $gradetypes = array (
     0 => 'None',    // Scale ID: null
@@ -284,6 +284,7 @@ $column_names = array(
     'L3VA'  => 'Level 3 Value Added.',
     'MAG'   => 'Indicative Minimum Achievable Grade.',
 );
+*/
 
 // Make an array keyed to the column names to store the grades in.
 $targets = array();
