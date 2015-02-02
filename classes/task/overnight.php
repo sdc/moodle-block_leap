@@ -34,8 +34,6 @@ class overnight extends \core\task\scheduled_task {
          * the MAG, for each student on specifically-tagged courses, and add it into
          * our live Moodle.
          *
-         * Add to admin/cli/ and run via cron.
-         *
          * @copyright 2014 Paul Vaughan
          * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
          *
