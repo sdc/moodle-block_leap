@@ -10,7 +10,7 @@ Moodle 2.7 or newer. Tested exhaustively with 2.7.4.
 
 ## Installation
 
-* Copy the 'leapgradetracking' folder into /local/
+* Copy the 'leapgradetracking' folder into blocks/
 * Visit your Moodle as admin and click on Notifications, follow prompts.
 
 ## Use 

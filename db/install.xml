@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/leapgradetracking/db" VERSION="20150128" COMMENT="XMLDB file for Moodle local/leapgradetracking"
+<XMLDB PATH="block/leapgradetracking/db" VERSION="20150128" COMMENT="XMLDB file for Moodle block/leapgradetracking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >

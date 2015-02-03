@@ -1,6 +1,6 @@
 <?php
 
-namespace local_leapgradetracking\task;
+namespace block_leapgradetracking\task;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -8,7 +8,7 @@ class overnight extends \core\task\scheduled_task {
 
     public function get_name() {
         // Shown in admin screens.
-        return get_string( 'pluginname', 'local_leapgradetracking' );
+        return get_string( 'pluginname', 'block_leapgradetracking' );
     }
 
     // A little function to make the db log look nice.

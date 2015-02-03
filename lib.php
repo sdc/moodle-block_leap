@@ -17,20 +17,15 @@
 /**
  * Leap Grade Tracking library files.
  *
- * @package    local_leapgradetracking
+ * @package    block_leapgradetracking
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-function local_leapgradetracking_cron() {
+function block_leapgradetracking_cron() {
 	
 	cron_execute_plugin_type('leapgradetracking', 'Leap grade tracking overnight process');
 
 }
-
-/*
-Start using the Task API instead:
-https://docs.moodle.org/dev/Task_API
-*/
