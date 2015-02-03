@@ -18,7 +18,7 @@ class overnight extends \core\task\scheduled_task {
         if (!$msg || empty( $msg ) ) {
             $msg = '----';
         }
-        $DB->insert_record( 'leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
+        $DB->insert_record( 'block_leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
     }
 
     /**
@@ -51,8 +51,8 @@ class overnight extends \core\task\scheduled_task {
 
         // Truncate the log table.
         //if ( overnight::TRUNCATE_LOG ) {
-            echo 'Truncating leapgradetracking_log...';
-            $DB->delete_records( 'leapgradetracking_log', null );   
+            echo 'Truncating block_leapgradetracking_log...';
+            $DB->delete_records( 'block_leapgradetracking_log', null );   
             echo " done.\n";
         //}
 
@@ -167,7 +167,7 @@ class overnight extends \core\task\scheduled_task {
             if (!$msg || empty( $msg ) ) {
                 $msg = '----';
             }
-            $DB->insert_record( 'leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
+            $DB->insert_record( 'block_leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
 
         }
 

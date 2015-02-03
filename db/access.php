@@ -15,14 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'block_leapgradetracking', language 'en'.
+ * Leap Grade Tracking block definition.
  *
  * @package    block_leapgradetracking
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
-
-$string['pluginname']               = 'Leap Grade Tracking';
-$string['simplehtml:addinstance']   = 'Add a new Leap Grade Tracking block';
+$capabilities = array(
+    'block/leapgradetracking:addinstance' => array(
+        'riskbitmask'       => RISK_SPAM | RISK_XSS,
+        'captype'           => 'write',
+        'contextlevel'      => CONTEXT_BLOCK,
+        'archetypes'        => array(
+            'editingteacher'    => CAP_ALLOW,
+            'manager'           => CAP_ALLOW
+        ),
+        'clonepermissionsfrom'  => 'moodle/site:manageblocks'
+    ),
+);

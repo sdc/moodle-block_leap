@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="leapgradetracking_log" COMMENT="A log table for Moodle's Leap grade tracking script.">
+    <TABLE NAME="block_leapgradetracking_log" COMMENT="A log table for Moodle's Leap grade tracking block.">
       <FIELDS>
         <FIELD NAME="id"          TYPE="int"  LENGTH="10"   NOTNULL="true"                  SEQUENCE="true"/>
         <FIELD NAME="type"        TYPE="char" LENGTH="4"    NOTNULL="true"  DEFAULT="----"  SEQUENCE="false"  COMMENT="Short code for what type of information is contained in this row."/>
