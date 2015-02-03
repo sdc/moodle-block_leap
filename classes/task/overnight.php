@@ -83,7 +83,7 @@ class overnight extends \core\task\scheduled_task {
 
         // Check for the required config setting in config.php.
         if ( !$CFG->trackerhash ) {
-            tlog( '$CFG->trackerhash not set in config.php.', 'EROR' );
+            overnight::tlog( '$CFG->trackerhash not set in config.php.', 'EROR' );
             //exit(1);
             return false;
         }
