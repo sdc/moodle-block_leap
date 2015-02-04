@@ -1,4 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Leap Grade Tracking overnight script class.
+ *
+ * @package    block_leapgradetracking
+ * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 namespace block_leapgradetracking\task;
 
@@ -157,6 +179,7 @@ class overnight extends \core\task\scheduled_task {
             'maths'     => null,
         );
 
+/*
         // A little function to make the output look nice.
         function tlog($msg, $type = 'ok') {
 
@@ -170,6 +193,7 @@ class overnight extends \core\task\scheduled_task {
             $DB->insert_record( 'block_leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
 
         }
+*/
 
         /**
          * Process the L3VA score into a MAG.
@@ -329,11 +353,11 @@ class overnight extends \core\task\scheduled_task {
             'id, shortname, fullname, idnumber'
         );
         if ( !$courses && $thiscourse ) {
-            tlog('No courses tagged \'' . IDNUMBERLIKE . '\' with ID \'' . $thiscourse . '\' found, so halting.', 'EROR');
+            overnight::tlog('No courses tagged \'' . IDNUMBERLIKE . '\' with ID \'' . $thiscourse . '\' found, so halting.', 'EROR');
             //exit(0);
             return false;
         } else if ( !$courses ) {
-            tlog('No courses tagged \'' . IDNUMBERLIKE . '\' found, so halting.', 'EROR');
+            overnight::tlog('No courses tagged \'' . IDNUMBERLIKE . '\' found, so halting.', 'EROR');
             //exit(0);
             return false;
         }
@@ -347,7 +371,7 @@ class overnight extends \core\task\scheduled_task {
 
             $cur_courses++;
 
-            tlog('Processing course (' . $cur_courses . '/' . $num_courses . ') ' . $course->fullname . ' (' . $course->shortname . ') [' . $course->id . '] at ' . date( 'c', time() ) . '.', 'info');
+            overnight::tlog('Processing course (' . $cur_courses . '/' . $num_courses . ') ' . $course->fullname . ' (' . $course->shortname . ') [' . $course->id . '] at ' . date( 'c', time() ) . '.', 'info');
             $logging['courses'][] = $course->fullname . ' (' . $course->shortname . ') [' . $course->id . '].';
 
             // Get the course's context.
@@ -374,16 +398,16 @@ class overnight extends \core\task\scheduled_task {
                         $course->scalename  = 'A Level';
                         $course->coursetype = $value;
 
-                        tlog( 'Course ' . $course->id . ' appears to be an A Level (A2) course, so setting that scale for use later.', 'info' );
+                        overnight::tlog( 'Course ' . $course->id . ' appears to be an A Level (A2) course, so setting that scale for use later.', 'info' );
 
                         // Get the scale ID.
                         if ( !$moodlescaleid = $DB->get_record( 'scale', array( 'name' => 'A Level' ), 'id' ) ) {
-                            tlog( '- Could not find a scale called \'' . $course->scalename . '\' for course ' . $course->id . '.', 'warn' );
+                            overnight::tlog( '- Could not find a scale called \'' . $course->scalename . '\' for course ' . $course->id . '.', 'warn' );
 
                         } else {
                             // Scale located.
                             $course->scaleid = $moodlescaleid->id;
-                            tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescaleid->id . '.', 'info' );
+                            overnight::tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescaleid->id . '.', 'info' );
                         }
 
                         break;
@@ -393,16 +417,16 @@ class overnight extends \core\task\scheduled_task {
                         $course->scalename  = 'GCSE';
                         $course->coursetype = $value;
 
-                        tlog( 'Course ' . $course->id . ' appears to be a GCSE course, so setting that scale for use later.', 'info' );
+                        overnight::tlog( 'Course ' . $course->id . ' appears to be a GCSE course, so setting that scale for use later.', 'info' );
 
                         // Get the scale ID.
                         if ( !$moodlescaleid = $DB->get_record( 'scale', array( 'name' => 'GCSE' ), 'id' ) ) {
-                            tlog( '- Could not find a scale called \'' . $course->scalename . '\' for course ' . $course->id . '.', 'warn' );
+                            overnight::tlog( '- Could not find a scale called \'' . $course->scalename . '\' for course ' . $course->id . '.', 'warn' );
 
                         } else {
                             // Scale located.
                             $course->scaleid = $moodlescaleid->id;
-                            tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescaleid->id . '.', 'info' );
+                            overnight::tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescaleid->id . '.', 'info' );
                         }
 
                         break;
@@ -419,7 +443,7 @@ class overnight extends \core\task\scheduled_task {
                 $gradeid = 2;                   // Set this to scale.
                 $scaleid = $course->scaleid;    // Set this to what we pulled out of Moodle earlier.
 
-                tlog('- Grade ID \'' . $gradeid . '\' and scale ID \'' . $scaleid . '\' set.');
+                overnight::tlog('- Grade ID \'' . $gradeid . '\' and scale ID \'' . $scaleid . '\' set.');
 
             // Figure out the grade type and scale here, pulled directly from the course's gradebook's course itemtype.
             } else if ( $coursegradescale = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' ) ) {
@@ -428,7 +452,7 @@ class overnight extends \core\task\scheduled_task {
                 $scaleid = $coursegradescale->scaleid;
 
                 // Found a grade type
-                tlog('Gradetype \'' . $gradeid . '\' (' . $gradetypes[$gradeid] . ') found.', 'info');
+                overnight::tlog('Gradetype \'' . $gradeid . '\' (' . $gradetypes[$gradeid] . ') found.', 'info');
 
                 // If the grade type is 2 / scale.
                 if ( $gradeid == 2 ) {
@@ -442,12 +466,12 @@ class overnight extends \core\task\scheduled_task {
                         $tolog = '- Scale \'' . $coursescale->id . '\' (' . $coursescale->name . ') found [' . $coursescale->scale . ']';
                         $tolog .= ( $coursescale->courseid ) ? ' (which is specific to course ' . $coursescale->courseid . ')' : ' (which is global)';
                         $tolog .= '.';
-                        tlog($tolog, 'info');
+                        overnight::tlog($tolog, 'info');
 
                     } else {
 
                         // If the scale doesn't exist that the course is using, this is a problem.
-                        tlog('- Gradetype \'2\' set, but no matching scale found.', 'warn');
+                        overnight::tlog('- Gradetype \'2\' set, but no matching scale found.', 'warn');
 
                     }
 
@@ -467,7 +491,7 @@ class overnight extends \core\task\scheduled_task {
                 // Set it to default if no good scale could be found/used.
                 $gradeid = 0;
                 $scaleid = 0;
-                tlog('No \'gradetype\' found, so using defaults instead.', 'info');
+                overnight::tlog('No \'gradetype\' found, so using defaults instead.', 'info');
             }
 
 
@@ -481,7 +505,7 @@ class overnight extends \core\task\scheduled_task {
              */
             if ( $DB->get_record( 'grade_categories', array( 'courseid' => $course->id, 'fullname' => CATNAME ) ) ) {
                 // Category exists, so skip creation.
-                tlog('Category \'' . CATNAME . '\' already exists for course ' . $course->id . '.', 'skip');
+                overnight::tlog('Category \'' . CATNAME . '\' already exists for course ' . $course->id . '.', 'skip');
 
             } else {
                 // Create a category for this course.
@@ -498,11 +522,11 @@ class overnight extends \core\task\scheduled_task {
 
                 // Save all that...
                 if ( !$gc = $grade_category->insert() ) {
-                    tlog('Category \'' . CATNAME . '\' could not be inserted for course '.$course->id.'.', 'EROR');
+                    overnight::tlog('Category \'' . CATNAME . '\' could not be inserted for course '.$course->id.'.', 'EROR');
                     //exit(0);
                     return false;
                 } else {
-                    tlog('Category \'' . CATNAME . '\' (' . $gc . ') created for course '.$course->id.'.');
+                    overnight::tlog('Category \'' . CATNAME . '\' (' . $gc . ') created for course '.$course->id.'.');
                 }
             }
 
@@ -526,7 +550,7 @@ class overnight extends \core\task\scheduled_task {
                 // Need to check for previously-created columns and skip creation if they already exist.
                 if ( $DB->get_record('grade_items', array( 'courseid' => $course->id, 'itemname' => $col_name, 'itemtype' => 'manual' ) ) ) {
                     // Column exists, so skip creation.
-                    tlog('- Column \'' . $col_name . '\' already exists for course ' . $course->id . '.', 'skip');
+                    overnight::tlog('- Column \'' . $col_name . '\' already exists for course ' . $course->id . '.', 'skip');
 
                 } else {
                     // Create a new item object.
@@ -575,11 +599,11 @@ class overnight extends \core\task\scheduled_task {
 
                     // Save it all.
                     if ( !$gi = $grade_item->insert() ) {
-                        tlog('- Column \'' . $col_name . '\' could not be inserted for course ' . $course->id . '.', 'EROR');
+                        overnight::tlog('- Column \'' . $col_name . '\' could not be inserted for course ' . $course->id . '.', 'EROR');
                         //exit(0);
                         return false;
                     } else {
-                        tlog('- Column \'' . $col_name . '\' created for course ' . $course->id . '.');
+                        overnight::tlog('- Column \'' . $col_name . '\' created for course ' . $course->id . '.');
                     }
 
                 } // END skip processing if manual column(s) already found in course.
@@ -625,12 +649,12 @@ class overnight extends \core\task\scheduled_task {
                 ORDER BY userid ASC;";
 
             if ( !$enrollees = $DB->get_records_sql( $sql ) ) {
-                tlog('No manually enrolled students found for course ' . $course->id . '.', 'warn');
+                overnight::tlog('No manually enrolled students found for course ' . $course->id . '.', 'warn');
 
             } else {
 
                 $num_enrollees = count($enrollees);
-                tlog('Found ' . $num_enrollees . ' students manually enrolled onto course ' . $course->id . '.', 'info');
+                overnight::tlog('Found ' . $num_enrollees . ' students manually enrolled onto course ' . $course->id . '.', 'info');
 
                 // A variable to store which enrollee we're processing.
                 $cur_enrollees = 0;
@@ -642,20 +666,20 @@ class overnight extends \core\task\scheduled_task {
                     $enrollee->studentid = $tmp[0];
 
                     // A proper student, hopefully.
-                    tlog('- Processing user (' . $cur_enrollees . '/' . $num_enrollees . ') ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '] on course ' . $course->id . '.', 'info');
+                    overnight::tlog('- Processing user (' . $cur_enrollees . '/' . $num_enrollees . ') ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '] on course ' . $course->id . '.', 'info');
                     $logging['students_processed'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . '.';
                     $logging['students_unique'][$enrollee->userid] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '].';
 
                     // Assemble the URL with the correct data.
                     $leapdataurl = sprintf( LEAP_TRACKER_API, $enrollee->studentid, $CFG->trackerhash );
                     if ( DEBUG ) {
-                        tlog('-- Leap URL: ' . $leapdataurl, 'dbug');
+                        overnight::tlog('-- Leap URL: ' . $leapdataurl, 'dbug');
                     }
 
                     // Use fopen to read from the API.
                     if ( !$handle = fopen($leapdataurl, 'r') ) {
                         // If the API can't be reached for some reason.
-                        tlog('- Cannot open ' . $leapdataurl . '.', 'EROR');
+                        overnight::tlog('- Cannot open ' . $leapdataurl . '.', 'EROR');
 
                     } else {
                         // API reachable, get the data.
@@ -663,12 +687,12 @@ class overnight extends \core\task\scheduled_task {
                         fclose($handle);
 
                         if ( DEBUG ) {
-                            tlog('-- Returned JSON: ' . $leapdata, 'dbug');
+                            overnight::tlog('-- Returned JSON: ' . $leapdata, 'dbug');
                         }
 
                         // Handle an empty result from the API.
                         if ( strlen($leapdata) == 0 ) {
-                            tlog('-- API returned 0 bytes.', 'EROR');
+                            overnight::tlog('-- API returned 0 bytes.', 'EROR');
 
                         } else {
                             // Decode the JSON into an object.
@@ -676,7 +700,7 @@ class overnight extends \core\task\scheduled_task {
 
                             // Checking for JSON decoding errors, seems only right.
                             if ( json_last_error() ) {
-                                tlog('-- JSON decoding returned error code ' . json_last_error() . ' for user ' . $enrollee->studentid . '.', 'EROR');
+                                overnight::tlog('-- JSON decoding returned error code ' . json_last_error() . ' for user ' . $enrollee->studentid . '.', 'EROR');
                             } else {
 
                                 // We have a L3VA score! And possibly GCSE English and maths grades too.
@@ -686,12 +710,12 @@ class overnight extends \core\task\scheduled_task {
 
                                 if ( $targets['l3va'] == '' || !is_numeric( $targets['l3va'] ) || $targets['l3va'] <= 0 ) {
                                     // If the L3VA isn't good.
-                                    tlog('-- L3VA is not good: \'' . $targets['l3va'] . '\'.', 'warn');
+                                    overnight::tlog('-- L3VA is not good: \'' . $targets['l3va'] . '\'.', 'warn');
                                     $logging['no_l3va'][$enrollee->userid] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '].';
 
                                 } else {
 
-                                    tlog('-- ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '] L3VA score: ' . $targets['l3va'] . '.', 'info');
+                                    overnight::tlog('-- ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '] L3VA score: ' . $targets['l3va'] . '.', 'info');
 
                                     // If this course is tagged as a GCSE English or maths course, use the grades supplied in the JSON.
                                     if ( $course->coursetype == 'leapcore_gcse_english' ) {
@@ -713,9 +737,9 @@ class overnight extends \core\task\scheduled_task {
                                     $targets['tag'] = $tagtemp[0];
 
                                     if ( $course->coursetype == 'leapcore_gcse_english' || $course->coursetype == 'leapcore_gcse_maths' ) {
-                                        tlog('--- GCSEs passed through from Leap JSON: MAG: \'' . $targets['mag'] . '\' ['. $magtemp[1] .']. TAG: \'' . $targets['tag'] . '\' ['. $tagtemp[1] .'].', 'info');
+                                        overnight::tlog('--- GCSEs passed through from Leap JSON: MAG: \'' . $targets['mag'] . '\' ['. $magtemp[1] .']. TAG: \'' . $targets['tag'] . '\' ['. $tagtemp[1] .'].', 'info');
                                     } else {
-                                        tlog('--- Generated data: MAG: \'' . $targets['mag'] . '\' ['. $magtemp[1] .']. TAG: \'' . $targets['tag'] . '\' ['. $tagtemp[1] .'].', 'info');
+                                        overnight::tlog('--- Generated data: MAG: \'' . $targets['mag'] . '\' ['. $magtemp[1] .']. TAG: \'' . $targets['tag'] . '\' ['. $tagtemp[1] .'].', 'info');
                                     }
 
                                     if ( $targets['mag'] == '0' || $targets['mag'] == '1' ) {
@@ -754,9 +778,9 @@ class overnight extends \core\task\scheduled_task {
                                         if ( !$gradegrade ) {
 
                                             if ( !$gl = $grade->insert() ) {
-                                                tlog('--- ' . strtoupper( $target ) . ' insert failed for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'EROR' );
+                                                overnight::tlog('--- ' . strtoupper( $target ) . ' insert failed for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'EROR' );
                                             } else {
-                                                tlog('--- ' . strtoupper( $target ) . ' (' . $score . ') inserted for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
+                                                overnight::tlog('--- ' . strtoupper( $target ) . ' (' . $score . ') inserted for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
                                             }
 
                                         } else {
@@ -764,7 +788,7 @@ class overnight extends \core\task\scheduled_task {
 
                                             if ( $target == 'mag' && !$score ) {
                                                 // For MAGs, we don't want to update to a zero or null score as that may overwrite a manually-entered MAG.
-                                                tlog('--- ' . strtoupper( $target ) . ' of 0 or null (' . $score . ') purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
+                                                overnight::tlog('--- ' . strtoupper( $target ) . ' of 0 or null (' . $score . ') purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
                                                 $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.'; 
 
                                             } else if ( $target != 'tag' ) {
@@ -775,13 +799,13 @@ class overnight extends \core\task\scheduled_task {
                                                 $grade->timemodified = time();
 
                                                 if ( !$gl = $grade->update() ) {
-                                                    tlog('--- ' . strtoupper( $target ) . ' update failed for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'EROR' );
+                                                    overnight::tlog('--- ' . strtoupper( $target ) . ' update failed for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'EROR' );
                                                 } else {
-                                                    tlog('--- ' . strtoupper( $target ) . ' (' . $score . ') update for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
+                                                    overnight::tlog('--- ' . strtoupper( $target ) . ' (' . $score . ') update for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
                                                 }
 
                                             } else {
-                                                tlog('--- ' . strtoupper( $target ) . ' purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'skip' );
+                                                overnight::tlog('--- ' . strtoupper( $target ) . ' purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'skip' );
                                                 $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.';
                                             } // END ignore updating the TAG.
 
@@ -802,12 +826,12 @@ class overnight extends \core\task\scheduled_task {
             }  // END enrollee query.
 
             // Final blank-ish log entry to separate out one course from another.
-            tlog('', '----');
+            overnight::tlog('', '----');
 
         } // END foreach course tagged 'leapcore_*'.
 
         // Sort and dump the summary log.
-        tlog('Summary of all performed operations.', 'smry');
+        overnight::tlog('Summary of all performed operations.', 'smry');
         asort($logging['courses']);
         asort($logging['students_processed']);
         asort($logging['students_unique']);
@@ -829,75 +853,75 @@ class overnight extends \core\task\scheduled_task {
         $logging['num']['poor_grades'] = count($logging['poor_grades']);
 
         if ( $logging['num']['courses'] ) {
-            tlog( $logging['num']['courses'] . ' courses:', 'smry' );
+            overnight::tlog( $logging['num']['courses'] . ' courses:', 'smry' );
             $count = 0;
             foreach ( $logging['courses'] as $course ) {
-                tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $course, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $course, 'smry' );
             }
         } else {
-            tlog( 'No courses processed.', 'warn' );
+            overnight::tlog( 'No courses processed.', 'warn' );
         }
 
         if ( $logging['num']['students_processed'] ) {
-            tlog( $logging['num']['students_processed'] . ' student-courses processed:', 'smry' );
+            overnight::tlog( $logging['num']['students_processed'] . ' student-courses processed:', 'smry' );
             $count = 0;
             foreach ( $logging['students_processed'] as $student ) {
-                tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $student, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $student, 'smry' );
             }
         } else {
-            tlog( 'No student-courses processed.', 'warn' );
+            overnight::tlog( 'No student-courses processed.', 'warn' );
         }
 
         if ( $logging['num']['students_unique'] ) {
-            tlog( $logging['num']['students_unique'] . ' unique students:', 'smry' );
+            overnight::tlog( $logging['num']['students_unique'] . ' unique students:', 'smry' );
             $count = 0;
             foreach ( $logging['students_unique'] as $student ) {
                 echo sprintf( '%4s', ++$count ) . ': ' . $student . "\n";
-                tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $student, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $student, 'smry' );
             }
         } else {
-            tlog( 'No unique students processed.', 'warn' );
+            overnight::tlog( 'No unique students processed.', 'warn' );
         }
 
         if ( $logging['num']['no_l3va'] ) {
-            tlog( $logging['num']['no_l3va'] . ' students with no L3VA:', 'smry' );
+            overnight::tlog( $logging['num']['no_l3va'] . ' students with no L3VA:', 'smry' );
             $count = 0;
             foreach ( $logging['no_l3va'] as $no_l3va ) {
                 echo sprintf( '%4s', ++$count ) . ': ' . $no_l3va . "\n";
-                tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $no_l3va, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $no_l3va, 'smry' );
             }
         } else {
-            tlog( 'No missing L3VAs.', 'warn' );
+            overnight::tlog( 'No missing L3VAs.', 'warn' );
         }
 
         if ( $logging['num']['not_updated'] ) {
-            tlog( $logging['num']['not_updated'] . ' students purposefully not updated (0 or null grade):', 'smry' );
+            overnight::tlog( $logging['num']['not_updated'] . ' students purposefully not updated (0 or null grade):', 'smry' );
             $count = 0;
             foreach ( $logging['not_updated'] as $not_updated ) {
-                tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $not_updated, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $not_updated, 'smry' );
             }
         } else {
-            tlog( 'No students purposefully not updated.', 'warn' );
+            overnight::tlog( 'No students purposefully not updated.', 'warn' );
         }
 
         if ( $logging['num']['grade_types'] ) {
-            tlog( $logging['num']['grade_types'] . ' grade types with ' . $logging['num']['grade_types_in_use']  . ' grades set:', 'smry' );
+            overnight::tlog( $logging['num']['grade_types'] . ' grade types with ' . $logging['num']['grade_types_in_use']  . ' grades set:', 'smry' );
             $count = 0;
             foreach ( $logging['grade_types'] as $grade_type => $num_grades ) {
-                tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $grade_type . ': ' . $num_grades, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $grade_type . ': ' . $num_grades, 'smry' );
             }
         } else {
-            tlog( 'No grade_types found.', 'warn' );
+            overnight::tlog( 'No grade_types found.', 'warn' );
         }
 
         if ( $logging['num']['poor_grades'] ) {
-            tlog( $logging['num']['poor_grades'] . ' poor grades:', 'smry');
+            overnight::tlog( $logging['num']['poor_grades'] . ' poor grades:', 'smry');
             $count = 0;
             foreach ( $logging['poor_grades'] as $poorgrade ) {
-                tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $poorgrade, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $poorgrade, 'smry' );
             }
         } else {
-            tlog( 'No poor grades found. Good!', 'smry' );
+            overnight::tlog( 'No poor grades found. Good!', 'smry' );
         }
 
 
@@ -907,8 +931,8 @@ class overnight extends \core\task\scheduled_task {
         $mins = ( floor( $duration / 60 ) == 0 ) ? '' : floor( $duration / 60 ) . ' minutes';
         $secs = ( ( $duration % 60 ) == 0 ) ? '' : ( $duration % 60 ) . ' seconds';
         $secs = ( $mins == '' ) ? $secs : ' ' . $secs;
-        tlog('', '----');
-        tlog('Finished at ' . date( 'c', $time_end ) . ', took ' . $mins . $secs . ' (' . number_format( $duration, DECIMALS ) . ' seconds).', 'byby');
+        overnight::tlog('', '----');
+        overnight::tlog('Finished at ' . date( 'c', $time_end ) . ', took ' . $mins . $secs . ' (' . number_format( $duration, DECIMALS ) . ' seconds).', 'byby');
 
 
         //exit(0);
