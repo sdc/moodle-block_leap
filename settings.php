@@ -15,17 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'block_leapgradetracking', language 'en'.
+ * Leap Grade Tracking library files.
  *
  * @package    block_leapgradetracking
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
-
-$string['pluginname']           = 'Leap Grade Tracking';
-$string['addinstance']          = 'Add a new Leap Grade Tracking block';
-
-$string['auth_username']        = '"Leap user" username';
-$string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the Leap Webservices plugin.';
+$settings->add( new admin_setting_configtext(
+    'block_leapgradetracking/auth_username',
+    get_string( 'auth_username', 'block_leapgradetracking' ),
+    get_string( 'auth_username_desc', 'block_leapgradetracking' ),
+    '',
+    PARAM_USERNAME
+));
