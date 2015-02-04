@@ -23,6 +23,14 @@
  */
 
 $settings->add( new admin_setting_configtext(
+    'block_leapgradetracking/leap_url',
+    get_string( 'leap_url', 'block_leapgradetracking' ),
+    get_string( 'leap_url_desc', 'block_leapgradetracking' ),
+    '',
+    PARAM_URL
+));
+
+$settings->add( new admin_setting_configtext(
     'block_leapgradetracking/auth_username',
     get_string( 'auth_username', 'block_leapgradetracking' ),
     get_string( 'auth_username_desc', 'block_leapgradetracking' ),

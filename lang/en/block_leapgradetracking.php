@@ -22,10 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
-
 $string['pluginname']           = 'Leap Grade Tracking';
 $string['addinstance']          = 'Add a new Leap Grade Tracking block';
+
+$string['leap_url']             = 'Leap installation URL';
+$string['leap_url_desc']        = 'The URL (web address) of your Leap installation (e.g. <code>http://leap.southdevon.ac.uk</code>). Do not use a trailing slash.';
 
 $string['auth_username']        = '"Leap user" username';
 $string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the Leap Webservices plugin.';
