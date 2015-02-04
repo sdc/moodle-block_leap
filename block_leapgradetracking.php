@@ -68,15 +68,27 @@ class block_leapgradetracking extends block_base {
         if( has_capability( 'moodle/site:config', $coursecontext ) ) {
             $this->content->text .= '<p>This user is a Site Admin.</p>';
 
-            $this->content->text .= '<p><strong>Admin Checks</strong></p>';
+            $this->content->text .= '<p><strong>Global Config Checks</strong></p>';
 
 // get_config($plugin, $name);
 // set_config($name, $value, $plugin);
 
+            // TODO: pre-save processing to check for 'http(s)://' and potentially remove '/'?
+            // TODO: quick check to make sure the URL, if exists, is real and pingable?
+            $leap_url = get_config( 'block_leapgradetracking', 'leap_url' );
+            if ( empty( $leap_url ) ) {
+                // 'leap_url' config field empty.
+                $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+            } else {
+                // 'leap_url' config field populated with something.
+                $this->content->text .= '<p>"leap_url" set [' . $leap_url . '].</p>';
+            }
+
+
             $auth_username = get_config( 'block_leapgradetracking', 'auth_username' );
             if ( empty( $auth_username ) ) {
                 // 'auth_username' config field empty.
-                $this->content->text .= '<p><em>"auth_username" not set!</em></p>';
+                $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
             } else {
                 // 'auth_username' config field populated with something.
                 $this->content->text .= '<p>"auth_username" set [' . $auth_username . '].</p>';
