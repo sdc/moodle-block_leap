@@ -68,6 +68,7 @@ class overnight extends \core\task\scheduled_task {
         // Null or an int (course's id): run the script only for this course. For testing or one-offs.
         $thiscourse = null; // null or e.g. 1234
 
+        // TODO: can we use the details in version.php? It would make a lot more sense.
         $version    = '1.0.19';
         $build      = '20150128';
 
@@ -85,8 +86,27 @@ class overnight extends \core\task\scheduled_task {
         }
         overnight::tlog( '', '----' );
 
-        // Sample Leap Tracker API URL.
-        define( 'LEAP_TRACKER_API', 'http://leap.southdevon.ac.uk/people/%s.json?token=%s' );
+        // TODO: Check for required config settings and fail gracefully if they're not available.
+        //
+        // Check for the required config setting in config.php.
+        // TODO: We don't store the hash anywhere just yet, only the username of the auth'd user.
+        // But here we need the hash, so should we work it out and store it in the db?
+        if ( !$CFG->trackerhash ) {
+            overnight::tlog( '$CFG->trackerhash not set in config.php.', 'EROR' );
+            return false;
+        }
+        // "leap_url" block config setting. We check for existence, not accuracy.
+        // TODO: quick check to make sure the URL is real and pingable?
+        if ( !get_config( 'block_leapgradetracking', 'leap_url' ) ) {
+            overnight::tlog( 'Setting "leap_url" not set.', 'EROR' );
+            return false;
+        }
+
+
+
+        // Leap URL.
+        // TODO: Fail gracefully if this setting is not set (and log the failure, too).
+        define( 'LEAP_TRACKER_API', get_config( 'block_leapgradetracking', 'leap_url' ) . '/people/%s.json?token=%s' );
 
         // Number of decimal places in the processed targets (and elsewhere).
         define( 'DECIMALS', 3 );
@@ -102,13 +122,6 @@ class overnight extends \core\task\scheduled_task {
         define( 'CATNAME', 'Targets' );
 
         //require_once $CFG->dirroot.'/grade/lib.php';
-
-        // Check for the required config setting in config.php.
-        if ( !$CFG->trackerhash ) {
-            overnight::tlog( '$CFG->trackerhash not set in config.php.', 'EROR' );
-            //exit(1);
-            return false;
-        }
 
         // Logging array for the end-of-script summary.
         $logging = array(
