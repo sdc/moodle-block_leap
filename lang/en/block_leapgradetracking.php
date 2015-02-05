@@ -30,3 +30,11 @@ $string['leap_url_desc']        = 'The URL (web address) of your Leap installati
 
 $string['auth_username']        = '"Leap user" username';
 $string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the Leap Webservices plugin.';
+
+$string['tracker_type']         = 'Tracker type';
+
+$string['tracker_type:core']    = 'Core course';
+$string['tracker_type:english'] = 'English';
+$string['tracker_type:maths']   = 'Maths';
+$string['tracker_type:ppd']     = 'PPD';
+$string['tracker_type:test']    = 'Test (for development and testing purposes only)';
