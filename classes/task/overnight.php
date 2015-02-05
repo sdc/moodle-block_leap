@@ -43,6 +43,40 @@ class overnight extends \core\task\scheduled_task {
         $DB->insert_record( 'block_leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
     }
 
+    /*
+     * Gets the auth token, based on the username specified in the block's global config.
+     * Takes no parameters, returns a 32-character sting.
+     */
+    private function get_auth_token() {
+        global $DB;
+
+        $auth_token = $DB->get_record_sql('
+            SELECT token
+            FROM {external_tokens}, {external_services}, {user}
+            WHERE {user}.username = :username
+                AND {user}.id = {external_tokens}.userid
+                AND {external_tokens}.externalserviceid = {external_services}.id
+                AND {external_services}.component = :component
+                AND {external_services}.enabled = :enabled
+                AND
+                (
+                    {external_tokens}.validuntil = 0
+                        OR
+                    {external_tokens}.validuntil > :validuntil
+                )
+            ',
+            array(
+                'username'      => get_config( 'block_leapgradetracking', 'auth_username' ),
+                'component'     => 'local_leapwebservices',
+                'enabled'       => 1,
+                'validuntil'    => time(),
+            )
+        );
+
+        return $auth_token->token;
+    }
+
+
     /**
      * This is the function which runs when cron calls.
      */
@@ -86,33 +120,27 @@ class overnight extends \core\task\scheduled_task {
         }
         overnight::tlog( '', '----' );
 
-        // TODO: Check for required config settings and fail gracefully if they're not available.
-        //
-        // Check for the required config setting in config.php.
-        // TODO: We don't store the hash anywhere just yet, only the username of the auth'd user.
-        // But here we need the hash, so should we work it out and store it in the db?
-        if ( !$CFG->trackerhash ) {
-            overnight::tlog( '$CFG->trackerhash not set in config.php.', 'EROR' );
+        // Check for required config settings and fail gracefully if they're not available.
+        if ( !$auth_token = overnight::get_auth_token() ) {
+            overnight::tlog( 'Could not find a valid auth token.', 'EROR' );
             return false;
         }
-        // "leap_url" block config setting. We check for existence, not accuracy.
+        overnight::tlog( $auth_token, 'auth' );
+        define( 'AUTH_TOKEN', $auth_token );
+
         // TODO: quick check to make sure the URL is real and pingable?
-        if ( !get_config( 'block_leapgradetracking', 'leap_url' ) ) {
+        if ( !$leap_url = get_config( 'block_leapgradetracking', 'leap_url' ) ) {
             overnight::tlog( 'Setting "leap_url" not set.', 'EROR' );
             return false;
         }
+        define( 'LEAP_TRACKER_API', $leap_url . '/people/%s.json?token=%s' );
 
-
-
-        // Leap URL.
-        // TODO: Fail gracefully if this setting is not set (and log the failure, too).
-        define( 'LEAP_TRACKER_API', get_config( 'block_leapgradetracking', 'leap_url' ) . '/people/%s.json?token=%s' );
 
         // Number of decimal places in the processed targets (and elsewhere).
         define( 'DECIMALS', 3 );
 
         // Debugging.
-        define( 'DEBUG', false );
+        define( 'DEBUG', true );
 
         // Search term to use when searching for courses to process.
         define( 'IDNUMBERLIKE', 'leapcore_%' );
@@ -684,7 +712,7 @@ class overnight extends \core\task\scheduled_task {
                     $logging['students_unique'][$enrollee->userid] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '].';
 
                     // Assemble the URL with the correct data.
-                    $leapdataurl = sprintf( LEAP_TRACKER_API, $enrollee->studentid, $CFG->trackerhash );
+                    $leapdataurl = sprintf( LEAP_TRACKER_API, $enrollee->studentid, AUTH_TOKEN );
                     if ( DEBUG ) {
                         overnight::tlog('-- Leap URL: ' . $leapdataurl, 'dbug');
                     }
