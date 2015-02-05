@@ -40,6 +40,27 @@ class block_leapgradetracking extends block_base {
         return true;
     }
 
+    // Hide the textual leader in the future?
+    public function hide_header() {
+        return false;
+    }
+
+    // Show only in courses.
+    // Unsure how many of these options we should disallow? More than one will break things.
+    // TODO: research and disallow inappropriate locations for this block.
+    public function applicable_formats() {
+        return array(
+            'course-view'   => true,    // All main course pages.
+            'mod'           => false,   // Module pages.
+            'site'          => false;   // Front page.
+        );
+    }
+
+    // Using the Task API instead.
+    public function cron() {
+        // ...
+    }
+
     public function get_content() {
         global $CFG, $COURSE, $DB;
 
