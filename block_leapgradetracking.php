@@ -63,12 +63,10 @@ class block_leapgradetracking extends block_base {
 
         $this->content->text   = '<p style="text-align:center;"><img src="'.$CFG->wwwroot.'/blocks/leapgradetracking/pix/logo.png"></p>';
 
-        // Apparently the best way forward is to roll our own capabilities. Maybe one day.
+        // TODO: Apparently the best way forward is to roll our own capabilities. Maybe one day.
         //if( has_capability( 'block/leapgradetracking:editconfig', $coursecontext ) ) {
         if( has_capability( 'moodle/site:config', $coursecontext ) ) {
-            $this->content->text .= '<p>This user is a Site Admin.</p>';
-
-            $this->content->text .= '<p><strong>Global Config Checks</strong></p>';
+            $this->content->text .= '<p><strong>Block sanity checks</strong></p>';
 
 // get_config($plugin, $name);
 // set_config($name, $value, $plugin);
@@ -81,7 +79,7 @@ class block_leapgradetracking extends block_base {
                 $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
             } else {
                 // 'leap_url' config field populated with something.
-                $this->content->text .= '<p>"leap_url" set [' . $leap_url . '].</p>';
+                $this->content->text .= '<p>"leap_url" set [' . $leap_url . ']. &#10003;</p>';
             }
 
 
@@ -89,39 +87,68 @@ class block_leapgradetracking extends block_base {
             if ( empty( $auth_username ) ) {
                 // 'auth_username' config field empty.
                 $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+
             } else {
                 // 'auth_username' config field populated with something.
-                $this->content->text .= '<p>"auth_username" set [' . $auth_username . '].</p>';
+                $this->content->text .= '<p>"auth_username" set [' . $auth_username . ']. &#10003;</p>';
+
                 $auth_userid = $DB->get_record( 'user', array( 'username' => $auth_username ), 'id' );
                 //var_dump($auth_userid->id); die();
                 if ( empty( $auth_userid ) ) {
                     // 'auth_username' doesn't relate to a user in the database.
                     $this->content->text .= '<p><em>[' . $auth_username . '] not found in database!</em></p>';
+
                 } else {
                     // 'auth_username' relates to a user in the database.
-                    $this->content->text .= '<p>"' . $auth_username . '" equates to user id ' . $auth_userid->id . '.</p>';
-                    $auth_token = $DB->get_record( 'external_tokens', array( 'userid' => $auth_userid->id ) );
+                    $this->content->text .= '<p>"' . $auth_username . '" equates to user id ' . $auth_userid->id . '. &#10003;</p>';
+                    //$auth_token = $DB->get_record( 'external_tokens', array( 'userid' => $auth_userid->id ) );
+
+                    // Checking for a valid user for a specific, enabled component.
+                    $auth_token = $DB->get_record_sql('
+                        SELECT token, validuntil, enabled
+                        FROM {external_tokens}, {external_services}
+                        WHERE {external_tokens}.externalserviceid = {external_services}.id
+                            AND {external_services}.component = :component
+                            AND {external_services}.enabled = :enabled
+                            AND {external_tokens}.userid = :userid
+                        ',
+                        array( 'component' => 'local_leapwebservices', 'enabled' => 1, 'userid' => $auth_userid->id )
+                        );
+
                     if ( empty( $auth_token ) ) {
                         // No external token found in the database for that user.
                         $this->content->text .= '<p><em>No external token found in database for userid ' . $auth_userid->id . '!</em></p>';
+
                     } else {
                         // External token found in the database for that user.
-                        $this->content->text .= '<p>External token [' . $auth_token->token . '] found in database for userid ' . $auth_userid->id . '!</p>';
+                        $this->content->text .= '<p>External token [' . $auth_token->token . '] found in database for userid ' . $auth_userid->id . '. &#10003;</p>';
+
                         // There are some checks surrounding external keys - is it worth abiding by them?
-                        //
-                        // mdl_external_tokens.externalserviceid == external_services.id WHERE component = 'local_leapwebservices'
-                        //    AND external_services.enabled = 1
                         //
                         // * IP restriction - no, as it's a plugin on the same server, not an external system.
                         // * valid until - probably... If the key's set to expire, we shouldn't use it after it has.
-                        if ( $auth_token->validuntil <= time() ) {
-                            $this->content->text .= '<p><em>Token has expired!</em></p>';
+                        if ( $auth_token->validuntil == 0 ) {
+                            $this->content->text .= '<p>Token has no expiry date. &#10003;</p>';
+
+                        } else if ( $auth_token->validuntil > time() ) {
+                            $this->content->text .= '<p>Token is in date. &#10003;</p>';
+
                         } else {
-                            $this->content->text .= '<p>Token is in date.</p>';
+                            $this->content->text .= '<p><em>Token has expired!</em></p>';
                         }
                     }
                 }
             }
+
+            $this->content->text .= '<hr>';
+
+        } // END block sanity checks.
+
+
+        /* Doing actual block stuff here. */
+
+        if( has_capability( 'moodle/site:config', $coursecontext ) ) {
+            $this->content->text .= '<p>This user is a Site Admin.</p>';
 
         } else if( has_capability( 'moodle/course:update', $coursecontext ) ) {
             $this->content->text .= '<p>This user is a Teacher.</p>';
@@ -131,6 +158,6 @@ class block_leapgradetracking extends block_base {
         }
 
         return $this->content;
-      }
+    }
 
 } // END class
