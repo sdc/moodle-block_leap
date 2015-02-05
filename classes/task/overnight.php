@@ -104,7 +104,8 @@ class overnight extends \core\task\scheduled_task {
 
         // TODO: can we use the details in version.php? It would make a lot more sense.
         $version    = '1.0.19';
-        $build      = '20150128';
+        //$build      = '20150128';
+        $build      = get_config( 'block_leapgradetracking', 'version' );
 
         // Truncate the log table.
         //if ( overnight::TRUNCATE_LOG ) {
@@ -125,8 +126,8 @@ class overnight extends \core\task\scheduled_task {
             overnight::tlog( 'Could not find a valid auth token.', 'EROR' );
             return false;
         }
-        overnight::tlog( $auth_token, 'auth' );
         define( 'AUTH_TOKEN', $auth_token );
+        overnight::tlog( AUTH_TOKEN, 'dbug' );
 
         // TODO: quick check to make sure the URL is real and pingable?
         if ( !$leap_url = get_config( 'block_leapgradetracking', 'leap_url' ) ) {
@@ -134,7 +135,7 @@ class overnight extends \core\task\scheduled_task {
             return false;
         }
         define( 'LEAP_TRACKER_API', $leap_url . '/people/%s.json?token=%s' );
-
+        overnight::tlog( LEAP_TRACKER_API, 'dbug' );
 
         // Number of decimal places in the processed targets (and elsewhere).
         define( 'DECIMALS', 3 );
