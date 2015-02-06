@@ -10,7 +10,7 @@ $trackertypes = array(
 
 $coursetypes = array(
     'none' => array (
-        ''                  => get_string( 'course_type:none', 'block_leapgradetracking' ),,
+        ''                  => get_string( 'course_type:none', 'block_leapgradetracking' ),
     ),
 
     'a2' => array (
