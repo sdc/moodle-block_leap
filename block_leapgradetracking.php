@@ -52,7 +52,7 @@ class block_leapgradetracking extends block_base {
         return array(
             'course-view'   => true,    // All main course pages.
             'mod'           => false,   // Module pages.
-            'site'          => false;   // Front page.
+            'site'          => false,   // Front page.
         );
     }
 
