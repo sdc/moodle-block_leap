@@ -64,6 +64,9 @@ class block_leapgradetracking extends block_base {
     public function get_content() {
         global $CFG, $COURSE, $DB;
 
+        define ( 'TICK', '<span style="color: #3b3;">&#10003;</span>' );
+        define ( 'CROSS', '<span style="color: #f00;">&#10007;</span>' );
+
         if ($this->content !== null) {
           return $this->content;
         }
@@ -87,10 +90,8 @@ class block_leapgradetracking extends block_base {
         // TODO: Apparently the best way forward is to roll our own capabilities. Maybe one day.
         //if( has_capability( 'block/leapgradetracking:editconfig', $coursecontext ) ) {
         if( has_capability( 'moodle/site:config', $coursecontext ) ) {
-            $this->content->text .= '<p><strong>Block sanity checks</strong></p>';
 
-// get_config($plugin, $name);
-// set_config($name, $value, $plugin);
+            $this->content->text .= '<p><strong>' . get_string( 'settings:global', 'block_leapgradetracking' ) . '</strong></p>';
 
             // TODO: pre-save processing to check for 'http(s)://' and potentially remove '/'?
             // TODO: quick check to make sure the URL, if exists, is real and pingable?
@@ -100,7 +101,7 @@ class block_leapgradetracking extends block_base {
                 $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
             } else {
                 // 'leap_url' config field populated with something.
-                $this->content->text .= '<p>"leap_url" set [' . $leap_url . ']. &#10003;</p>';
+                $this->content->text .= '<p>"leap_url" set [' . $leap_url . ']. ' . TICK . '</p>';
             }
 
 
@@ -111,7 +112,7 @@ class block_leapgradetracking extends block_base {
 
             } else {
                 // 'auth_username' config field populated with something.
-                $this->content->text .= '<p>"auth_username" set [' . $auth_username . ']. &#10003;</p>';
+                $this->content->text .= '<p>"auth_username" set [' . $auth_username . ']. ' . TICK . '</p>';
 
                 $auth_userid = $DB->get_record( 'user', array( 'username' => $auth_username ), 'id' );
                 //var_dump($auth_userid->id); die();
@@ -121,7 +122,7 @@ class block_leapgradetracking extends block_base {
 
                 } else {
                     // 'auth_username' relates to a user in the database.
-                    $this->content->text .= '<p>"' . $auth_username . '" equates to user id ' . $auth_userid->id . '. &#10003;</p>';
+                    $this->content->text .= '<p>"' . $auth_username . '" equates to user id ' . $auth_userid->id . '. ' . TICK . '</p>';
                     //$auth_token = $DB->get_record( 'external_tokens', array( 'userid' => $auth_userid->id ) );
 
                     // Checking for a valid user for a specific, enabled component.
@@ -142,20 +143,20 @@ class block_leapgradetracking extends block_base {
 
                     } else {
                         // External token found in the database for that user.
-                        $this->content->text .= '<p>External token [' . $auth_token->token . '] found in database for userid ' . $auth_userid->id . '. &#10003;</p>';
+                        $this->content->text .= '<p>External token [' . $auth_token->token . '] found in database for userid ' . $auth_userid->id . '. ' . TICK . '</p>';
 
                         // There are some checks surrounding external keys - is it worth abiding by them?
                         //
                         // * IP restriction - no, as it's a plugin on the same server, not an external system.
                         // * valid until - probably... If the key's set to expire, we shouldn't use it after it has.
                         if ( $auth_token->validuntil == 0 ) {
-                            $this->content->text .= '<p>Token has no expiry date. &#10003;</p>';
+                            $this->content->text .= '<p>Token has no expiry date. ' . TICK . '</p>';
 
                         } else if ( $auth_token->validuntil > time() ) {
-                            $this->content->text .= '<p>Token is in date. &#10003;</p>';
+                            $this->content->text .= '<p>Token is in date. ' . TICK . '</p>';
 
                         } else {
-                            $this->content->text .= '<p><em>Token has expired!</em></p>';
+                            $this->content->text .= '<p><em>Token has expired!</em> ' . CROSS . '</p>';
                         }
                     }
                 }
@@ -166,8 +167,33 @@ class block_leapgradetracking extends block_base {
         } // END block sanity checks.
 
 
-        /* Doing actual block stuff here. */
+        // Quick report on what the block has been set to, for admins and teachers.
+        if( has_capability( 'moodle/site:config', $coursecontext ) || has_capability( 'moodle/course:update', $coursecontext ) ) {
 
+            $build = '<p><strong>' . get_string( 'settings:course', 'block_leapgradetracking' ) . '</strong></p><p>';
+
+            if ( isset( $this->config->trackertype ) && !empty( $this->config->trackertype) ) {
+                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'tracker_type:' . $this->config->trackertype, 'block_leapgradetracking' ) . '. ' . TICK;
+            } else {
+                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . CROSS;
+            }
+
+            $build .= '<br>';
+
+            if ( isset( $this->config->coursetype ) && !empty( $this->config->coursetype) ) {
+                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'course_type:' . $this->config->coursetype, 'block_leapgradetracking' ) . '. ' . TICK;
+            } else {
+                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . CROSS;
+            }
+
+            $build .= '</p><hr>';
+
+            $this->content->text .= $build;
+
+        } // END quick report.
+
+
+        /* Doing actual block stuff here. */
         if( has_capability( 'moodle/site:config', $coursecontext ) ) {
             $this->content->text .= '<p>This user is a Site Admin.</p>';
 
