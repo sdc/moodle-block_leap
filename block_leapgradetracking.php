@@ -64,11 +64,22 @@ class block_leapgradetracking extends block_base {
     public function get_content() {
         global $CFG, $COURSE, $DB, $PAGE;
 
-        define ( 'TICK', '<span style="color: #3b3;">&#10003;</span>' );
-        define ( 'CROSS', '<span style="color: #f00;">&#10007;</span>' );
+        // The define() statements were being defined twice, apparently, when not in edit mode. So:
+        $tick   = '<span style="color: #3b3;">&#10003;</span>';
+        $cross  = '<span style="color: #f00;">&#10007;</span>';
 
-        if ($this->content !== null) {
+        if ( $this->content !== null ) {
           return $this->content;
+        }
+
+        // Removing the trailing slash from the supplied URL if present.
+        // TODO: This is fine, but only (and always) runs when the block is loaded on a course.
+        $tmp_leap_url = get_config( 'block_leapgradetracking', 'leap_url' )
+        if ( !empty( $tmp_leap_url ) ) {
+            if ( substr( $tmp_leap_url, -1) == '/' ) {
+                $tmp_leap_url = substr( $tmp_leap_url, 0, -1);
+                get_config( 'leap_url', $tmp_leap_url, 'block_leapgradetracking' );
+            }
         }
      
         $this->content          =  new stdClass;
@@ -85,13 +96,13 @@ class block_leapgradetracking extends block_base {
            exit;
         }
 
-        // TODO: check $PAGE->user_is_editing() to see if course is in edit mode or not.
-
         $this->content->text   = '<p style="text-align:center;"><img src="'.$CFG->wwwroot.'/blocks/leapgradetracking/pix/logo.png"></p>';
 
         // TODO: Apparently the best way forward is to roll our own capabilities. Maybe one day.
         //if( has_capability( 'block/leapgradetracking:editconfig', $coursecontext ) ) {
-        if( has_capability( 'moodle/site:config', $coursecontext ) ) {
+
+        // If the user is an admin AND editing mode is turned on, do sanity checks.
+        if( has_capability( 'moodle/site:config', $coursecontext ) && $PAGE->user_is_editing() ) {
 
             $this->content->text .= '<p><strong>' . get_string( 'settings:global', 'block_leapgradetracking' ) . '</strong></p>';
 
@@ -100,31 +111,31 @@ class block_leapgradetracking extends block_base {
             $leap_url = get_config( 'block_leapgradetracking', 'leap_url' );
             if ( empty( $leap_url ) ) {
                 // 'leap_url' config field empty.
-                $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> ' . CROSS . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+                $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> ' . $cross . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
             } else {
                 // 'leap_url' config field populated with something.
-                $this->content->text .= '<p>"leap_url" set [' . $leap_url . ']. ' . TICK . '</p>';
+                $this->content->text .= '<p>"leap_url" set [' . $leap_url . ']. ' . $tick . '</p>';
             }
 
 
             $auth_username = get_config( 'block_leapgradetracking', 'auth_username' );
             if ( empty( $auth_username ) ) {
                 // 'auth_username' config field empty.
-                $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> ' . CROSS . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+                $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> ' . $cross . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
 
             } else {
                 // 'auth_username' config field populated with something.
-                $this->content->text .= '<p>"auth_username" set [' . $auth_username . ']. ' . TICK . '</p>';
+                $this->content->text .= '<p>"auth_username" set [' . $auth_username . ']. ' . $tick . '</p>';
 
                 $auth_userid = $DB->get_record( 'user', array( 'username' => $auth_username ), 'id' );
                 //var_dump($auth_userid->id); die();
                 if ( empty( $auth_userid ) ) {
                     // 'auth_username' doesn't relate to a user in the database.
-                    $this->content->text .= '<p><em>[' . $auth_username . '] not found in database!</em>' . CROSS . '</p>';
+                    $this->content->text .= '<p><em>[' . $auth_username . '] not found in database!</em>' . $cross . '</p>';
 
                 } else {
                     // 'auth_username' relates to a user in the database.
-                    $this->content->text .= '<p>"' . $auth_username . '" equates to user id ' . $auth_userid->id . '. ' . TICK . '</p>';
+                    $this->content->text .= '<p>"' . $auth_username . '" equates to user id ' . $auth_userid->id . '. ' . $tick . '</p>';
                     //$auth_token = $DB->get_record( 'external_tokens', array( 'userid' => $auth_userid->id ) );
 
                     // Checking for a valid user for a specific, enabled component.
@@ -141,24 +152,24 @@ class block_leapgradetracking extends block_base {
 
                     if ( empty( $auth_token ) ) {
                         // No external token found in the database for that user.
-                        $this->content->text .= '<p><em>No external token found in database for userid ' . $auth_userid->id . '!</em>' . CROSS . '</p>';
+                        $this->content->text .= '<p><em>No external token found in database for userid ' . $auth_userid->id . '!</em>' . $cross . '</p>';
 
                     } else {
                         // External token found in the database for that user.
-                        $this->content->text .= '<p>External token [' . $auth_token->token . '] found in database for userid ' . $auth_userid->id . '. ' . TICK . '</p>';
+                        $this->content->text .= '<p>External token [' . $auth_token->token . '] found in database for userid ' . $auth_userid->id . '. ' . $tick . '</p>';
 
                         // There are some checks surrounding external keys - is it worth abiding by them?
                         //
                         // * IP restriction - no, as it's a plugin on the same server, not an external system.
                         // * valid until - probably... If the key's set to expire, we shouldn't use it after it has.
                         if ( $auth_token->validuntil == 0 ) {
-                            $this->content->text .= '<p>Token has no expiry date. ' . TICK . '</p>';
+                            $this->content->text .= '<p>Token has no expiry date. ' . $tick . '</p>';
 
                         } else if ( $auth_token->validuntil > time() ) {
-                            $this->content->text .= '<p>Token is in date. ' . TICK . '</p>';
+                            $this->content->text .= '<p>Token is in date. ' . $tick . '</p>';
 
                         } else {
-                            $this->content->text .= '<p><em>Token has expired!</em> ' . CROSS . '</p>';
+                            $this->content->text .= '<p><em>Token has expired!</em> ' . $cross . '</p>';
                         }
                     }
                 }
@@ -175,17 +186,17 @@ class block_leapgradetracking extends block_base {
             $build = '<p><strong>' . get_string( 'settings:course', 'block_leapgradetracking' ) . '</strong></p><p>';
 
             if ( isset( $this->config->trackertype ) && !empty( $this->config->trackertype) ) {
-                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'tracker_type:' . $this->config->trackertype, 'block_leapgradetracking' ) . '. ' . TICK;
+                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'tracker_type:' . $this->config->trackertype, 'block_leapgradetracking' ) . '. ' . $tick;
             } else {
-                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . CROSS;
+                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . $cross;
             }
 
             $build .= '<br>';
 
             if ( isset( $this->config->coursetype ) && !empty( $this->config->coursetype) ) {
-                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'course_type:' . $this->config->coursetype, 'block_leapgradetracking' ) . '. ' . TICK;
+                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'course_type:' . $this->config->coursetype, 'block_leapgradetracking' ) . '. ' . $tick;
             } else {
-                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . CROSS;
+                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . $cross;
             }
 
             $build .= '</p><hr>';
