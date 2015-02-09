@@ -29,22 +29,27 @@ $string['leap_url']             = 'Leap installation URL';
 $string['leap_url_desc']        = 'The URL (web address) of your Leap installation (e.g. <code>http://leap.southdevon.ac.uk</code>). Do not use a trailing slash.';
 
 $string['auth_username']        = '"Leap user" username';
-$string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the Leap Webservices plugin.';
+$string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the <a href="https://github.com/sdc/moodle-local_leapwebservices" target="_blank">Leap Webservices plugin</a>.';
 
 $string['tracker_type']         = 'Tracker type';
 
+$string['tracker_type_title:none']  = 'None';
+$string['tracker_type_title:prod']  = 'Standard';
+$string['tracker_type_title:dev']   = 'Development / Testing';
+
+$string['tracker_type:none']    = 'None';
 $string['tracker_type:core']    = 'Core course';
 $string['tracker_type:english'] = 'English';
 $string['tracker_type:maths']   = 'Maths';
 $string['tracker_type:ppd']     = 'PPD';
-$string['tracker_type:test']    = 'Test (for development and testing purposes only)';
+$string['tracker_type:test']    = 'Test';
 
 $string['course_type']          = 'Course type';
 
-$string['course_type_title:none']   = 'None:';
-$string['course_type_title:a2']     = 'AS/A2:';
-$string['course_type_title:btec']   = 'BTEC:';
-$string['course_type_title:gcse']   = 'GCSE:';
+$string['course_type_title:none']   = 'None';
+$string['course_type_title:asa2']   = 'AS/A2';
+$string['course_type_title:btec']   = 'BTEC';
+$string['course_type_title:gcse']   = 'GCSE';
 
 $string['course_type:none']             = 'None';
 $string['course_type:a2_artdes']        = 'Art &amp; Design';
