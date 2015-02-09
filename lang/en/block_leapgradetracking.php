@@ -31,6 +31,9 @@ $string['leap_url_desc']        = 'The URL (web address) of your Leap installati
 $string['auth_username']        = '"Leap user" username';
 $string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the <a href="https://github.com/sdc/moodle-local_leapwebservices" target="_blank">Leap Webservices plugin</a>.';
 
+$string['settings:global']      = 'Global settings';
+$string['settings:course']      = 'This courses\' settings';
+
 $string['tracker_type']         = 'Tracker type';
 
 $string['tracker_type_title:none']  = 'None';
@@ -78,3 +81,5 @@ $string['course_type:a2_sociology']     = 'Sociology';
 $string['course_type:btec_ed_applsci']  = 'Extended Diploma in Applied Science';
 $string['course_type:gcse_english']     = 'English';
 $string['course_type:gcse_maths']       = 'Maths';
+
+$string['error:notconf']    = 'not configured';
