@@ -62,7 +62,7 @@ class block_leapgradetracking extends block_base {
     }
 
     public function get_content() {
-        global $CFG, $COURSE, $DB;
+        global $CFG, $COURSE, $DB, $PAGE;
 
         define ( 'TICK', '<span style="color: #3b3;">&#10003;</span>' );
         define ( 'CROSS', '<span style="color: #f00;">&#10007;</span>' );
@@ -85,6 +85,8 @@ class block_leapgradetracking extends block_base {
            exit;
         }
 
+        // TODO: check $PAGE->user_is_editing() to see if course is in edit mode or not.
+
         $this->content->text   = '<p style="text-align:center;"><img src="'.$CFG->wwwroot.'/blocks/leapgradetracking/pix/logo.png"></p>';
 
         // TODO: Apparently the best way forward is to roll our own capabilities. Maybe one day.
@@ -98,7 +100,7 @@ class block_leapgradetracking extends block_base {
             $leap_url = get_config( 'block_leapgradetracking', 'leap_url' );
             if ( empty( $leap_url ) ) {
                 // 'leap_url' config field empty.
-                $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+                $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> ' . CROSS . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
             } else {
                 // 'leap_url' config field populated with something.
                 $this->content->text .= '<p>"leap_url" set [' . $leap_url . ']. ' . TICK . '</p>';
@@ -108,7 +110,7 @@ class block_leapgradetracking extends block_base {
             $auth_username = get_config( 'block_leapgradetracking', 'auth_username' );
             if ( empty( $auth_username ) ) {
                 // 'auth_username' config field empty.
-                $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+                $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> ' . CROSS . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
 
             } else {
                 // 'auth_username' config field populated with something.
@@ -118,7 +120,7 @@ class block_leapgradetracking extends block_base {
                 //var_dump($auth_userid->id); die();
                 if ( empty( $auth_userid ) ) {
                     // 'auth_username' doesn't relate to a user in the database.
-                    $this->content->text .= '<p><em>[' . $auth_username . '] not found in database!</em></p>';
+                    $this->content->text .= '<p><em>[' . $auth_username . '] not found in database!</em>' . CROSS . '</p>';
 
                 } else {
                     // 'auth_username' relates to a user in the database.
@@ -139,7 +141,7 @@ class block_leapgradetracking extends block_base {
 
                     if ( empty( $auth_token ) ) {
                         // No external token found in the database for that user.
-                        $this->content->text .= '<p><em>No external token found in database for userid ' . $auth_userid->id . '!</em></p>';
+                        $this->content->text .= '<p><em>No external token found in database for userid ' . $auth_userid->id . '!</em>' . CROSS . '</p>';
 
                     } else {
                         // External token found in the database for that user.
