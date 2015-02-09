@@ -1,19 +1,34 @@
 <?php
 
-$trackertypes = array(
-    'core'                  => get_string( 'tracker_type:core', 'block_leapgradetracking' ),
-    'english'               => get_string( 'tracker_type:english', 'block_leapgradetracking' ),
-    'maths'                 => get_string( 'tracker_type:maths', 'block_leapgradetracking' ),
-    'ppd'                   => get_string( 'tracker_type:ppd', 'block_leapgradetracking' ),
-    'test'                  => get_string( 'tracker_type:test', 'block_leapgradetracking' ),
-);
+/**
+ * Tracker and course type definitions.
+ *
+ * TODO: Potentially sort the nested arrays (e.g. in alphabetical order) instead of just adding them in in the required order.
+ */
 
-$coursetypes = array(
-    'none' => array (
-        ''                  => get_string( 'course_type:none', 'block_leapgradetracking' ),
+$trackertypes = array (
+    get_string( 'tracker_type_title:none', 'block_leapgradetracking' ) => array (
+        ''          => get_string( 'tracker_type:none', 'block_leapgradetracking' ),
     ),
 
-    'a2' => array (
+    get_string( 'tracker_type_title:prod', 'block_leapgradetracking' ) => array (
+        'core'      => get_string( 'tracker_type:core', 'block_leapgradetracking' ),
+        'english'   => get_string( 'tracker_type:english', 'block_leapgradetracking' ),
+        'maths'     => get_string( 'tracker_type:maths', 'block_leapgradetracking' ),
+        'ppd'       => get_string( 'tracker_type:ppd', 'block_leapgradetracking' ),
+    ),
+
+    get_string( 'tracker_type_title:dev', 'block_leapgradetracking' ) => array (
+        'test'      => get_string( 'tracker_type:test', 'block_leapgradetracking' ),
+    ),
+);
+
+$coursetypes = array (
+    get_string( 'course_type_title:none', 'block_leapgradetracking' ) => array (
+        ''          => get_string( 'course_type:none', 'block_leapgradetracking' ),
+    ),
+
+    get_string( 'course_type_title:asa2', 'block_leapgradetracking' ) => array (
         'a2_artdes'         => get_string( 'course_type:a2_artdes', 'block_leapgradetracking' ),
         'a2_artdesphoto'    => get_string( 'course_type:a2_artdesphoto', 'block_leapgradetracking' ),
         'a2_artdestext'     => get_string( 'course_type:a2_artdestext', 'block_leapgradetracking' ),
@@ -39,11 +54,11 @@ $coursetypes = array(
         'a2_sociology'      => get_string( 'course_type:a2_sociology', 'block_leapgradetracking' ),
     ),
 
-    'btec' => array(
+    get_string( 'course_type_title:btec', 'block_leapgradetracking' ) => array (
         'btec_ed_applsci'   => get_string( 'course_type:btec_ed_applsci', 'block_leapgradetracking' ),
     ),
 
-    'gcse' => array (
+    get_string( 'course_type_title:gcse', 'block_leapgradetracking' ) => array (
         'gcse_english'      => get_string( 'course_type:gcse_english', 'block_leapgradetracking' ),
         'gcse_maths'        => get_string( 'course_type:gcse_maths', 'block_leapgradetracking' ),
     ),
