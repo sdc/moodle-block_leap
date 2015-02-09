@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2015020600;
+$plugin->version        = 2015020900;
 $plugin->requires       = 2014051200;       		// Requires Moodle 2.7 or newer.
 $plugin->component      = 'block_leapgradetracking';
 $plugin->maturity       = MATURITY_ALPHA;
@@ -32,4 +32,4 @@ $plugin->release        = '1.0.19';
 $plugin->dependencies   = array (
     'local_leapwebservices'     => 2014112400,      // Needs the Leap web services local plugin.
 );
-//$plugin->cron       = 60;
+//$plugin->cron           = 60;
