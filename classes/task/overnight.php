@@ -46,6 +46,7 @@ class overnight extends \core\task\scheduled_task {
     /*
      * Gets the auth token, based on the username specified in the block's global config.
      * Takes no parameters, returns a 32-character sting.
+     * TODO: Move this to lib.php or locallib.php so it can be reused?
      */
     private function get_auth_token() {
         global $DB;
@@ -78,6 +79,128 @@ class overnight extends \core\task\scheduled_task {
 
 
     /**
+     * Process the L3VA score into a MAG.
+     *
+     * @param in        L3VA score (float)
+     * @param course    Tagged course type
+     * @param scale     Scale to use for this course
+     * @param tag       If true, make the TAG instead of MAG
+     */
+    private function make_mag( $in, $course = 'default', $scale = 'BTEC', $tag = false ) {
+
+        //if ( $in == '' || !is_numeric($in) || $in <= 0 || !$in ) {
+        if ( $in == '' || !$in ) {
+            return false;
+        }
+        if ( $course == '' ) {
+            return false;
+        }
+
+        $course = strtolower( $course );
+
+        global $l3va_data;
+
+        // Make the score acording to formulas if the scales are usable.
+        if ( $scale == 'BTEC' || $scale == 'A Level' ) {
+            $adj_l3va = ( $l3va_data[$course]['m'] * $in ) - $l3va_data[$course]['c'];
+        } else {
+            $adj_l3va = $in;
+        }
+
+        // Return a grade based on whatever scale we're using.
+        if ( $scale == 'BTEC' && !$tag ) {
+            // Using BTEC scale.
+
+            $score = 1; // Default grade of 'Refer'.
+            if ( $adj_l3va >= 30 ) {
+                $score = 2; // Pass
+            }
+            if ( $adj_l3va >= 60 ) {
+                $score = 3; // Merit
+            }
+            if ( $adj_l3va >= 90 ) {
+                $score = 4; // Distinction
+            }
+
+        } else if ( $scale == 'BTEC' && $tag ) {
+            // We don't want to add in TAGs for BTEC, so return null.
+            $score = null;
+
+        } else if ( $scale == 'A Level' ) {
+            // We're using an A Level scale.
+            // AS Levels are exactly half of A (A2) Levels, if we need to know them in the future.
+
+            // As A Level grades are precisely 30 apart, to get a TAG one grade up we just add 30 to the score.
+            if ( $tag ) {
+                $adj_l3va += 30;
+            }
+
+            $score = 1; // U
+            if ( $adj_l3va >= 30 ) {
+                $score = 2; // E
+            }
+            if ( $adj_l3va >= 60 ) {
+                $score = 3; // D
+            }
+            if ( $adj_l3va >= 90 ) {
+                $score = 4; // C
+            }
+            if ( $adj_l3va >= 120 ) {
+                $score = 5; // B
+            }
+            if ( $adj_l3va >= 150 ) {
+                $score = 6; // A
+            }
+            // If we ever use A*.
+            //if ( $adj_l3va >= 180 ) {
+            //    $score = 7; // A*
+            //}
+
+        } else if ( $scale == 'GCSE' ) {
+
+            $score = 1; // U
+            if ( $adj_l3va == 'U' ) {
+                $score = 1;
+            }
+            if ( $adj_l3va == 'F' ) {
+                $score = 2;
+            }
+            if ( $adj_l3va == 'E' ) {
+                $score = 3;
+            }
+            if ( $adj_l3va == 'D' ) {
+                $score = 4;
+            }
+            if ( $adj_l3va == 'C' ) {
+                $score = 5;
+            }
+            if ( $adj_l3va == 'B' ) {
+                $score = 6;
+            }
+            if ( $adj_l3va == 'A' ) {
+                $score = 7;
+            }
+
+        } else if ( $scale == 'Refer and Pass' ) {
+
+            // Always show a pass. Always.
+            $score = 2; // Pass
+
+        } else if ( $scale == 'noscale' ) {
+            // Using no scale, simply return null.
+            $score = null;
+
+        } else {
+            // Set a default score if none of the above criteria are met.
+            $score = null;
+        }
+
+        return array( $score, $adj_l3va );
+
+    }
+
+
+    /**
      * This is the function which runs when cron calls.
      */
     public function execute() {
@@ -92,27 +215,32 @@ class overnight extends \core\task\scheduled_task {
          *
          * @copyright 2014 Paul Vaughan
          * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-         *
-         * TODO:    Consider $thiscourse as an array, not an integer.
          */
 
         // Script start time.
         $time_start = microtime(true);
 
         // Null or an int (course's id): run the script only for this course. For testing or one-offs.
-        $thiscourse = null; // null or e.g. 1234
+        // TODO: Consider changing $thiscourse as an array, not an integer.
+        $thiscourse = 2; // null or e.g. 1234
 
-        // TODO: can we use the details in version.php? It would make a lot more sense.
+        // TODO: can we use *all* the details in version.php? It would make a lot more sense.
         $version    = '1.0.19';
         //$build      = '20150128';
         $build      = get_config( 'block_leapgradetracking', 'version' );
 
+        // Debugging.
+        define( 'DEBUG', true );
+
+        // Debugging.
+        define( 'TRUNCATE_LOG', true );
+
         // Truncate the log table.
-        //if ( overnight::TRUNCATE_LOG ) {
+        if ( TRUNCATE_LOG ) {
             echo 'Truncating block_leapgradetracking_log...';
             $DB->delete_records( 'block_leapgradetracking_log', null );   
             echo " done.\n";
-        //}
+        }
 
         overnight::tlog( 'GradeTracker script, v' . $version . ', ' . $build . '.', 'hiya' );
         overnight::tlog( 'Started at ' . date( 'c', $time_start ) . '.', ' go ' );
@@ -121,27 +249,43 @@ class overnight extends \core\task\scheduled_task {
         }
         overnight::tlog( '', '----' );
 
+        // Before almost anything has the chance to fail, reset the fail delay setting back to 0.
+        if ( DEBUG ) {
+            if ( !$reset = $DB->set_field( 'task_scheduled', 'faildelay', 0, array( 'component' => 'block_leapgradetracking', 'classname' => '\block_leapgradetracking\task\overnight' ) ) ) {
+                overnight::tlog( 'Scheduled task "fail delay" could not be reset.', 'warn' );
+            } else {
+                overnight::tlog( 'Scheduled task "fail delay" reset to 0.', 'dbug' );
+            }
+        }
+
         // Check for required config settings and fail gracefully if they're not available.
         if ( !$auth_token = overnight::get_auth_token() ) {
             overnight::tlog( 'Could not find a valid auth token.', 'EROR' );
             return false;
         }
         define( 'AUTH_TOKEN', $auth_token );
-        overnight::tlog( AUTH_TOKEN, 'dbug' );
+        overnight::tlog( 'Leap webservice auth hash: ' . AUTH_TOKEN, 'dbug' );
 
         // TODO: quick check to make sure the URL is real and pingable?
         if ( !$leap_url = get_config( 'block_leapgradetracking', 'leap_url' ) ) {
             overnight::tlog( 'Setting "leap_url" not set.', 'EROR' );
             return false;
         }
-        define( 'LEAP_TRACKER_API', $leap_url . '/people/%s.json?token=%s' );
-        overnight::tlog( LEAP_TRACKER_API, 'dbug' );
+        define( 'LEAP_API_URL', $leap_url . '/people/%s.json?token=%s' );
+        overnight::tlog( 'Leap API URL: ' . LEAP_API_URL, 'dbug' );
+
+/*
+        // Get this (Grade Tracking) block's id, as we'll need it later.
+        if ( !$blockid = $DB->get_record( 'block', array( 'name' => 'leapgradetracking' ), 'id' ) ) {
+            overnight::tlog( 'Could not get this block\'s ID for some reason.', 'EROR' );
+            return false;
+        }
+        define( 'BLOCK_ID', $blockid->id );
+        overnight::tlog( 'This block\'s id: ' . BLOCK_ID, 'dbug' );
+*/
 
         // Number of decimal places in the processed targets (and elsewhere).
         define( 'DECIMALS', 3 );
-
-        // Debugging.
-        define( 'DEBUG', true );
 
         // Search term to use when searching for courses to process.
         define( 'IDNUMBERLIKE', 'leapcore_%' );
@@ -149,6 +293,9 @@ class overnight extends \core\task\scheduled_task {
 
         // Category details for the above columns to go into.
         define( 'CATNAME', 'Targets' );
+
+        // Include some details.
+        require( dirname(__FILE__) . '/../../details.php' );
 
         //require_once $CFG->dirroot.'/grade/lib.php';
 
@@ -182,182 +329,11 @@ class overnight extends \core\task\scheduled_task {
             ),
         );
 
-        $l3va_data = array(
-            'leapcore_a2_artdes'        => array('m' => 4.4727, 'c' => 98.056),
-            'leapcore_a2_artdesphoto'   => array('m' => 4.1855, 'c' => 79.949),
-            'leapcore_a2_artdestext'    => array('m' => 3.9430, 'c' => 66.967),
-            'leapcore_a2_biology'       => array('m' => 5.2471, 'c' => 166.67),
-            'leapcore_a2_busstud'       => array('m' => 4.8372, 'c' => 123.41),
-            'leapcore_a2_chemistry'     => array('m' => 4.5169, 'c' => 129.00),
-            'leapcore_a2_englishlang'   => array('m' => 4.5773, 'c' => 112.14),
-            'leapcore_a2_englishlit'    => array('m' => 5.0872, 'c' => 137.31),
-            'leapcore_a2_envsci'        => array('m' => 6.1058, 'c' => 196.66),
-            'leapcore_a2_envstud'       => array('m' => 6.1058, 'c' => 196.66),
-            'leapcore_a2_filmstud'      => array('m' => 4.0471, 'c' => 76.470),
-            'leapcore_a2_geography'     => array('m' => 5.4727, 'c' => 156.16),
-            'leapcore_a2_govpoli'       => array('m' => 5.3215, 'c' => 145.38),
-            'leapcore_a2_history'       => array('m' => 4.6593, 'c' => 118.98),
-            'leapcore_a2_humanbiology'  => array('m' => 5.2471, 'c' => 166.67), // Copied from biology.
-            'leapcore_a2_law'           => array('m' => 5.1047, 'c' => 140.69),
-            'leapcore_a2_maths'         => array('m' => 4.5738, 'c' => 119.43),
-            'leapcore_a2_mathsfurther'  => array('m' => 4.4709, 'c' => 106.40),
-            'leapcore_a2_media'         => array('m' => 4.2884, 'c' => 90.279),
-            'leapcore_a2_philosophy'    => array('m' => 4.7645, 'c' => 128.95),
-            'leapcore_a2_physics'       => array('m' => 5.0965, 'c' => 159.08),
-            'leapcore_a2_psychology'    => array('m' => 5.3872, 'c' => 158.71),
-            'leapcore_a2_sociology'     => array('m' => 4.9645, 'c' => 122.95),
-
-            'leapcore_btecex_applsci'   => array('m' => 10.606, 'c' => 269.15),
-
-            'leapcore_default'          => array('m' => 4.8008, 'c' => 126.18),
-
-            'btec'                      => array('m' => 3.9, 'c' => 90),
-
-        );
-
         // Small array to store the GCSE English and maths grades from the JSON.
         $gcse = array(
             'english'   => null,
             'maths'     => null,
         );
-
-/*
-        // A little function to make the output look nice.
-        function tlog($msg, $type = 'ok') {
-
-            //$out = ( $type == 'ok' ) ? $type = '[ ok ]' : $type = '['.$type.']';
-            //echo $out . ' ' . $msg . "\n";
-
-            global $DB;
-            if (!$msg || empty( $msg ) ) {
-                $msg = '----';
-            }
-            $DB->insert_record( 'block_leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
-
-        }
-*/
-
-        /**
-         * Process the L3VA score into a MAG.
-         *
-         * @param in        L3VA score (float)
-         * @param course    Tagged course type
-         * @param scale     Scale to use for this course
-         * @param tag       If true, make the TAG instead of MAG
-         */
-        function make_mag( $in, $course = 'leapcore_default', $scale = 'BTEC', $tag = false ) {
-
-            //if ( $in == '' || !is_numeric($in) || $in <= 0 || !$in ) {
-            if ( $in == '' || !$in ) {
-                return false;
-            }
-            if ( $course == '' ) {
-                return false;
-            }
-
-            $course = strtolower( $course );
-
-            global $l3va_data;
-
-            // Make the score acording to formulas if the scales are usable.
-            if ( $scale == 'BTEC' || $scale == 'A Level' ) {
-                $adj_l3va = ( $l3va_data[$course]['m'] * $in ) - $l3va_data[$course]['c'];
-            } else {
-                $adj_l3va = $in;
-            }
-
-            // Return a grade based on whatever scale we're using.
-            if ( $scale == 'BTEC' && !$tag ) {
-                // Using BTEC scale.
-
-                $score = 1; // Default grade of 'Refer'.
-                if ( $adj_l3va >= 30 ) {
-                    $score = 2; // Pass
-                }
-                if ( $adj_l3va >= 60 ) {
-                    $score = 3; // Merit
-                }
-                if ( $adj_l3va >= 90 ) {
-                    $score = 4; // Distinction
-                }
-
-            } else if ( $scale == 'BTEC' && $tag ) {
-                // We don't want to add in TAGs for BTEC, so return null.
-                $score = null;
-
-            } else if ( $scale == 'A Level' ) {
-                // We're using an A Level scale.
-                // AS Levels are exactly half of A (A2) Levels, if we need to know them in the future.
-
-                // As A Level grades are precisely 30 apart, to get a TAG one grade up we just add 30 to the score.
-                if ( $tag ) {
-                    $adj_l3va += 30;
-                }
-
-                $score = 1; // U
-                if ( $adj_l3va >= 30 ) {
-                    $score = 2; // E
-                }
-                if ( $adj_l3va >= 60 ) {
-                    $score = 3; // D
-                }
-                if ( $adj_l3va >= 90 ) {
-                    $score = 4; // C
-                }
-                if ( $adj_l3va >= 120 ) {
-                    $score = 5; // B
-                }
-                if ( $adj_l3va >= 150 ) {
-                    $score = 6; // A
-                }
-                // If we ever use A*.
-                //if ( $adj_l3va >= 180 ) {
-                //    $score = 7; // A*
-                //}
-
-            } else if ( $scale == 'GCSE' ) {
-
-                $score = 1; // U
-                if ( $adj_l3va == 'U' ) {
-                    $score = 1;
-                }
-                if ( $adj_l3va == 'F' ) {
-                    $score = 2;
-                }
-                if ( $adj_l3va == 'E' ) {
-                    $score = 3;
-                }
-                if ( $adj_l3va == 'D' ) {
-                    $score = 4;
-                }
-                if ( $adj_l3va == 'C' ) {
-                    $score = 5;
-                }
-                if ( $adj_l3va == 'B' ) {
-                    $score = 6;
-                }
-                if ( $adj_l3va == 'A' ) {
-                    $score = 7;
-                }
-
-            } else if ( $scale == 'Refer and Pass' ) {
-
-                // Always show a pass. Always.
-                $score = 2; // Pass
-
-            } else if ( $scale == 'noscale' ) {
-                // Using no scale, simply return null.
-                $score = null;
-
-            } else {
-                // Set a default score if none of the above criteria are met.
-                $score = null;
-            }
-
-            return array( $score, $adj_l3va );
-
-        }
-
 
         // Just for internal use, defines the grade type (int) and what it is (string).
         $gradetypes = array (
@@ -386,6 +362,7 @@ class overnight extends \core\task\scheduled_task {
             $thiscoursestring = ' AND id = ' . $thiscourse;
         }
 
+/*
         // All courses which are appropriately tagged.
         $courses = $DB->get_records_select(
             'course',
@@ -403,6 +380,77 @@ class overnight extends \core\task\scheduled_task {
             //exit(0);
             return false;
         }
+*/
+
+        /**
+         * The next section looks through all courses for those with a properly configured Leap grade tracking block
+         * and adds it (and the tracking configuration) to the $courses array.
+         */
+
+        overnight::tlog( '', '----' );
+
+        // An empty array to put suitable course objects into.
+        $courses = array();
+
+        // Get the courses we're going to process.
+        if ( $thiscourse ) {
+            $allcourses = $DB->get_records( 'course', array( 'id' => $thiscourse ), 'id ASC', 'id, shortname, fullname' );
+        } else {
+            $allcourses = $DB->get_records( 'course', null, 'id ASC', 'id, shortname, fullname' );
+        }
+        foreach ( $allcourses as $course ) {
+            
+            // Ignore the course with id = 1, as it's the front page.
+            if ( $course->id == 1 ) {
+                continue;
+            } else {
+
+                // First get course context.
+                $coursecontext  = \context_course::instance( $course->id );
+                $blockrecord = $DB->get_record( 'block_instances', array( 'blockname' => 'leapgradetracking', 'parentcontextid' => $coursecontext->id ) );
+                $blockinstance  = block_instance( 'leapgradetracking', $blockrecord );
+
+                // Check and add trackertype and coursetype to the $course object.
+                if ( 
+                    isset( $blockinstance->config->trackertype ) &&
+                    !empty( $blockinstance->config->trackertype ) &&
+                    isset( $blockinstance->config->coursetype ) && 
+                    !empty( $blockinstance->config->coursetype ) ) 
+                {
+                    $course->trackertype    = $blockinstance->config->trackertype;
+                    $course->coursetype     = $blockinstance->config->coursetype;
+
+                    // All good, so...
+                    $courses[] = $course;
+                    overnight::tlog('Course \'' . $course->fullname . '\' (' . $course->shortname . ') [' . $course->id . '] added to process list.', 'info');
+
+                }
+            }
+        }
+
+        overnight::tlog( '', '----' );
+
+
+
+
+
+// This is the array used throughout the rest of the code so it should make sense at this point.
+var_dump( $courses );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         /**
          * Sets up each course tagged with leapcore_ with a category and columns within it.
@@ -713,7 +761,7 @@ class overnight extends \core\task\scheduled_task {
                     $logging['students_unique'][$enrollee->userid] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '].';
 
                     // Assemble the URL with the correct data.
-                    $leapdataurl = sprintf( LEAP_TRACKER_API, $enrollee->studentid, AUTH_TOKEN );
+                    $leapdataurl = sprintf( LEAP_API_URL, $enrollee->studentid, AUTH_TOKEN );
                     if ( DEBUG ) {
                         overnight::tlog('-- Leap URL: ' . $leapdataurl, 'dbug');
                     }
@@ -761,18 +809,18 @@ class overnight extends \core\task\scheduled_task {
 
                                     // If this course is tagged as a GCSE English or maths course, use the grades supplied in the JSON.
                                     if ( $course->coursetype == 'leapcore_gcse_english' ) {
-                                        $magtemp        = make_mag( $gcse['english'], $course->coursetype, $course->scalename );
+                                        $magtemp        = overnight::make_mag( $gcse['english'], $course->coursetype, $course->scalename );
                                         $tagtemp        = array( null, null );
 
                                     } else if ( $course->coursetype == 'leapcore_gcse_maths' ) {
-                                        $magtemp        = make_mag( $gcse['maths'], $course->coursetype, $course->scalename );
+                                        $magtemp        = overnight::make_mag( $gcse['maths'], $course->coursetype, $course->scalename );
                                         $tagtemp        = array( null, null );
 
                                     } else {
                                         // Make the MAG from the L3VA.
-                                        $magtemp        = make_mag( $targets['l3va'], $course->coursetype, $course->scalename );
+                                        $magtemp        = overnight::make_mag( $targets['l3va'], $course->coursetype, $course->scalename );
                                         // Make the TAG in the same way, setting 'true' at the end for the next grade up.
-                                        $tagtemp        = make_mag( $targets['l3va'], $course->coursetype, $course->scalename, true );
+                                        $tagtemp        = overnight::make_mag( $targets['l3va'], $course->coursetype, $course->scalename, true );
 
                                     }
                                     $targets['mag'] = $magtemp[0];
