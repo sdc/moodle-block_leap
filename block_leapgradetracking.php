@@ -69,12 +69,12 @@ class block_leapgradetracking extends block_base {
         $cross  = '<span style="color: #f00;">&#10007;</span>';
 
         if ( $this->content !== null ) {
-          return $this->content;
+            return $this->content;
         }
 
         // Removing the trailing slash from the supplied URL if present.
         // TODO: This is fine, but only (and always) runs when the block is loaded on a course.
-        $tmp_leap_url = get_config( 'block_leapgradetracking', 'leap_url' )
+        $tmp_leap_url = get_config( 'block_leapgradetracking', 'leap_url' );
         if ( !empty( $tmp_leap_url ) ) {
             if ( substr( $tmp_leap_url, -1) == '/' ) {
                 $tmp_leap_url = substr( $tmp_leap_url, 0, -1);
