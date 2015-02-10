@@ -29,6 +29,7 @@ $trackertypes = array (
 /**
  * Differrent types of course for tracking.
  */
+// TODO: the nested arrays have keys like 'a2_' which we can explode on _ to locate the course type, and therefore which scale to use?
 $coursetypes = array (
     get_string( 'course_type_title:none', 'block_leapgradetracking' ) => array (
         ''          => get_string( 'course_type:none', 'block_leapgradetracking' ),
@@ -103,5 +104,7 @@ $l3va_data = array(
     'default'           => array( 'm' => 4.8008, 'c' => 126.18 ),
 
     'btec'              => array( 'm' => 3.9, 'c' => 90 ),
+
+    // TODO: create default(s) such as btec_default?
 
 );

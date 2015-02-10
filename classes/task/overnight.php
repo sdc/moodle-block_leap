@@ -356,13 +356,13 @@ class overnight extends \core\task\scheduled_task {
             $targets[strtolower($name)] = '';
         }
 
+/*
         // If $thiscourse is set, query only that course.
         $thiscoursestring = '';
         if ( $thiscourse ) {
             $thiscoursestring = ' AND id = ' . $thiscourse;
         }
 
-/*
         // All courses which are appropriately tagged.
         $courses = $DB->get_records_select(
             'course',
@@ -422,34 +422,24 @@ class overnight extends \core\task\scheduled_task {
 
                     // All good, so...
                     $courses[] = $course;
-                    overnight::tlog('Course \'' . $course->fullname . '\' (' . $course->shortname . ') [' . $course->id . '] added to process list.', 'info');
+                    overnight::tlog( 'Course \'' . $course->fullname . '\' (' . $course->shortname . ') [' . $course->id . '] added to process list.', 'info');
+                    if ( DEBUG ) {
+                        overnight::tlog( json_encode( $course ), 'dbug');
+                    }
 
                 }
             }
         }
 
+        $num_courses = count( $courses );
+        $cur_courses = 0;
+        if ( $num_courses == 0 ) {
+            overnight::tlog( 'No courses found to process, so halting.', 'EROR');
+            // Returning false indicates failure. We didn't fail, just found no courses to process.
+            return true;
+        }
+
         overnight::tlog( '', '----' );
-
-
-
-
-
-// This is the array used throughout the rest of the code so it should make sense at this point.
-var_dump( $courses );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         /**
@@ -466,13 +456,6 @@ var_dump( $courses );
 
             // Get the course's context.
             $contextid = \context_course::instance( $course->id );
-
-        //echo '<pre>';
-        //var_dump($contextid);
-        //echo "=====\n";
-        //$letters = grade_get_letters($contextid);
-        //var_dump($letters);
-        //echo "========================================================\n";
 
             // Set up the scale to be used here, null by default.
             $course->scalename  = '';
