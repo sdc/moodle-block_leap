@@ -30,6 +30,7 @@ $trackertypes = array (
  * Differrent types of course for tracking.
  */
 // TODO: the nested arrays have keys like 'a2_' which we can explode on _ to locate the course type, and therefore which scale to use?
+// TODO: Should we move choice of which scale we're going to use for each course type into the global config? e.g. BTEC courses are scale 'SDC BTEC'?
 $coursetypes = array (
     get_string( 'course_type_title:none', 'block_leapgradetracking' ) => array (
         ''          => get_string( 'course_type:none', 'block_leapgradetracking' ),
