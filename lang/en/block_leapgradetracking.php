@@ -83,3 +83,12 @@ $string['course_type:gcse_english']     = 'English';
 $string['course_type:gcse_maths']       = 'Maths';
 
 $string['error:notconf']    = 'not configured';
+
+// Do NOT change the following three lang strings! Just don't! Here be dragons.
+$string['gradebook:tag']        = 'TAG';
+$string['gradebook:l3va']       = 'L3VA';
+$string['gradebook:mag']        = 'MAG';
+
+$string['gradebook:tag_desc']   = 'Target Achievable Grade.';
+$string['gradebook:l3va_desc']  = 'Level 3 Value Added.';
+$string['gradebook:mag_desc']   = 'Indicative Minimum Achievable Grade.';
