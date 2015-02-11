@@ -84,7 +84,14 @@ $string['course_type:gcse_maths']       = 'Maths';
 
 $string['error:notconf']    = 'not configured';
 
-// Do NOT change the following three lang strings! Just don't! Here be dragons.
+$string['gradebook:category_title']     = 'Targets';
+
+// The following three lang strings are used to define the names of the three columns we create and populate. If they change,
+// (either here or in the gradebook), then this script may not work as intended.
+// * If you want to rename these columns BEFORE this script has already created columns with these names, do it.
+// * If you want to rename these columns AFTER this script has already created columns with these names, you must change the
+//   names here AND in the whole gradebook (for each course using the SDC Grade Tracking plugin) AT THE SAME TIME and BEFORE
+//   the script runs again.
 $string['gradebook:tag']        = 'TAG';
 $string['gradebook:l3va']       = 'L3VA';
 $string['gradebook:mag']        = 'MAG';

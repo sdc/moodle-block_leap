@@ -292,7 +292,7 @@ class overnight extends \core\task\scheduled_task {
         //define( 'IDNUMBERLIKE', 'leapcore_test' );
 
         // Category details for the above columns to go into.
-        define( 'CATNAME', 'Targets' );
+        define( 'CATNAME', get_string( 'gradebook:category_title', 'block_leapgradetracking' ) );
 
         // Include some details.
         require( dirname(__FILE__) . '/../../details.php' );
@@ -344,6 +344,7 @@ class overnight extends \core\task\scheduled_task {
         );
 
         // Define the wanted column names (will appear in this order in the Gradebook, initially).
+        // These column names are an integral part of this plugin and should not be changed.
         $column_names = array(
             get_string( 'gradebook:tag', 'block_leapgradetracking' )    => get_string( 'gradebook:tag_desc', 'block_leapgradetracking' ),
             get_string( 'gradebook:l3va', 'block_leapgradetracking' )   => get_string( 'gradebook:l3va_desc', 'block_leapgradetracking' ),
@@ -356,31 +357,6 @@ class overnight extends \core\task\scheduled_task {
             $targets[strtolower($name)] = '';
         }
 
-/*
-        // If $thiscourse is set, query only that course.
-        $thiscoursestring = '';
-        if ( $thiscourse ) {
-            $thiscoursestring = ' AND id = ' . $thiscourse;
-        }
-
-        // All courses which are appropriately tagged.
-        $courses = $DB->get_records_select(
-            'course',
-            "idnumber LIKE '%|" . IDNUMBERLIKE . "|%'" . $thiscoursestring,
-            null,
-            "id ASC",
-            'id, shortname, fullname, idnumber'
-        );
-        if ( !$courses && $thiscourse ) {
-            overnight::tlog('No courses tagged \'' . IDNUMBERLIKE . '\' with ID \'' . $thiscourse . '\' found, so halting.', 'EROR');
-            //exit(0);
-            return false;
-        } else if ( !$courses ) {
-            overnight::tlog('No courses tagged \'' . IDNUMBERLIKE . '\' found, so halting.', 'EROR');
-            //exit(0);
-            return false;
-        }
-*/
 
         /**
          * The next section looks through all courses for those with a properly configured Leap grade tracking block
