@@ -345,9 +345,9 @@ class overnight extends \core\task\scheduled_task {
 
         // Define the wanted column names (will appear in this order in the Gradebook, initially).
         $column_names = array(
-            get_string( 'gradebook:tag', 'block_leapgradetracking' )    => get_string( 'gradebook:tag_desc', 'block_leapgradetracking' ),
-            get_string( 'gradebook:l3va', 'block_leapgradetracking' )   => get_string( 'gradebook:l3va_desc', 'block_leapgradetracking' ),
-            get_string( 'gradebook:mag', 'block_leapgradetracking' )    => get_string( 'gradebook:mag_desc', 'block_leapgradetracking' ),
+            'TAG'   => get_string( 'gradebook:tag_desc', 'block_leapgradetracking' ),
+            'L3VA'  => get_string( 'gradebook:l3va_desc', 'block_leapgradetracking' ),
+            'MAG'   => get_string( 'gradebook:mag_desc', 'block_leapgradetracking' ),
         );
 
         // Make an array keyed to the column names to store the grades in.
