@@ -222,7 +222,7 @@ class overnight extends \core\task\scheduled_task {
 
         // Null or an int (course's id): run the script only for this course. For testing or one-offs.
         // TODO: Consider changing $thiscourse as an array, not an integer.
-        $thiscourse = 2; // null or e.g. 1234
+        $thiscourse = null; // null or e.g. 1234
 
         // TODO: can we use *all* the details in version.php? It would make a lot more sense.
         $version    = '1.0.19';
@@ -421,8 +421,7 @@ class overnight extends \core\task\scheduled_task {
         /**
          * Sets up each course tagged with leapcore_ with a category and columns within it.
          */
-        $num_courses = count($courses);
-        $cur_courses = 0;
+
         foreach ($courses as $course) {
 
             $cur_courses++;
