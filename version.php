@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2015030900;
-$plugin->requires       = 2014051200;       		// Requires Moodle 2.7 or newer.
+$plugin->version        = 2015031200;
+$plugin->requires       = 2014051200;               // Requires Moodle 2.7 or newer.
 $plugin->component      = 'block_leapgradetracking';
 $plugin->maturity       = MATURITY_ALPHA;
 $plugin->release        = '1.0.19';

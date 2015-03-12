@@ -28,9 +28,10 @@ $tasks = array(
     array(
         'classname' => 'block_leapgradetracking\task\overnight',
         'blocking'  => 0,
-        //'minute'    => '0',
-        'minute'    => '*/1',
-        //'hour'      => '2',
+        ////'minute'    => '0',
+        //'minute'    => '*/1',
+        ////'hour'      => '2',
+        'minute'    => '*/30',
         'hour'      => '*',
         'day'       => '*',
         'dayofweek' => '*',
