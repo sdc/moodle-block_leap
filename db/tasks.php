@@ -17,7 +17,7 @@
 /**
  * Task definitions.
  *
- * @package    block_leapgradetracking
+ * @package    block_leap
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = array(
     array(
-        'classname' => 'block_leapgradetracking\task\overnight',
+        'classname' => 'block_leap\task\overnight',
         'blocking'  => 0,
         ////'minute'    => '0',
         //'minute'    => '*/1',

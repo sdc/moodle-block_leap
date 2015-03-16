@@ -615,6 +615,7 @@ foreach ($courses as $course) {
 
             } else {
                 // API reachable, get the data.
+                // TODO: This only reads in a line at a time. An unescaped newline character will break this.
                 $leapdata = fgets($handle);
                 fclose($handle);
 

@@ -15,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Leap Grade Tracking block definition.
+ * Leap block definition.
  *
- * @package    block_leapgradetracking
+ * @package    block_leap
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $capabilities = array(
-    'block/leapgradetracking:addinstance' => array(
+    'block/leap:addinstance' => array(
         'riskbitmask'       => RISK_SPAM | RISK_XSS,
         'captype'           => 'write',
         'contextlevel'      => CONTEXT_BLOCK,

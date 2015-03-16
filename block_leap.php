@@ -15,19 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Leap Grade Tracking block definition.
+ * Leap block definition.
  *
- * @package    block_leapgradetracking
+ * @package    block_leap
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-class block_leapgradetracking extends block_base {
+class block_leap extends block_base {
     
     public function init() {
-        $this->title = get_string( 'pluginname', 'block_leapgradetracking' );
+        $this->title = get_string( 'pluginname', 'block_leap' );
     }
 
     // More than one of these blocks per course will cause problems.
@@ -74,11 +74,11 @@ class block_leapgradetracking extends block_base {
 
         // Removing the trailing slash from the supplied URL if present.
         // TODO: This is fine, but only (and always) runs when the block is loaded on a course.
-        $tmp_leap_url = get_config( 'block_leapgradetracking', 'leap_url' );
+        $tmp_leap_url = get_config( 'block_leap', 'leap_url' );
         if ( !empty( $tmp_leap_url ) ) {
             if ( substr( $tmp_leap_url, -1) == '/' ) {
                 $tmp_leap_url = substr( $tmp_leap_url, 0, -1);
-                get_config( 'leap_url', $tmp_leap_url, 'block_leapgradetracking' );
+                get_config( 'leap_url', $tmp_leap_url, 'block_leap' );
             }
         }
      
@@ -96,32 +96,32 @@ class block_leapgradetracking extends block_base {
            exit;
         }
 
-        $this->content->text   = '<p style="text-align:center;"><img src="'.$CFG->wwwroot.'/blocks/leapgradetracking/pix/logo.png"></p>';
+        $this->content->text   = '<p style="text-align:center;"><img src="'.$CFG->wwwroot.'/blocks/leap/pix/logo.png"></p>';
 
         // TODO: Apparently the best way forward is to roll our own capabilities. Maybe one day.
-        //if( has_capability( 'block/leapgradetracking:editconfig', $coursecontext ) ) {
+        //if( has_capability( 'block/leap:editconfig', $coursecontext ) ) {
 
         // If the user is an admin AND editing mode is turned on, do sanity checks.
         if( has_capability( 'moodle/site:config', $coursecontext ) && $PAGE->user_is_editing() ) {
 
-            $this->content->text .= '<p><strong>' . get_string( 'settings:global', 'block_leapgradetracking' ) . '</strong></p>';
+            $this->content->text .= '<p><strong>' . get_string( 'settings:global', 'block_leap' ) . '</strong></p>';
 
             // TODO: pre-save processing to check for 'http(s)://' and potentially remove '/'?
             // TODO: quick check to make sure the URL, if exists, is real and pingable?
-            $leap_url = get_config( 'block_leapgradetracking', 'leap_url' );
+            $leap_url = get_config( 'block_leap', 'leap_url' );
             if ( empty( $leap_url ) ) {
                 // 'leap_url' config field empty.
-                $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> ' . $cross . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+                $this->content->text .= '<p><em>Global setting "leap_url" not set!</em> ' . $cross . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleap">settings</a>]</p>';
             } else {
                 // 'leap_url' config field populated with something.
                 $this->content->text .= '<p>"leap_url" set [' . $leap_url . ']. ' . $tick . '</p>';
             }
 
 
-            $auth_username = get_config( 'block_leapgradetracking', 'auth_username' );
+            $auth_username = get_config( 'block_leap', 'auth_username' );
             if ( empty( $auth_username ) ) {
                 // 'auth_username' config field empty.
-                $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> ' . $cross . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleapgradetracking">settings</a>]</p>';
+                $this->content->text .= '<p><em>Global setting "auth_username" not set!</em> ' . $cross . ' [<a href="' . $CFG->wwwroot . '/admin/settings.php?section=blocksettingleap">settings</a>]</p>';
 
             } else {
                 // 'auth_username' config field populated with something.
@@ -183,20 +183,20 @@ class block_leapgradetracking extends block_base {
         // Quick report on what the block has been set to, for admins and teachers.
         if( has_capability( 'moodle/site:config', $coursecontext ) || has_capability( 'moodle/course:update', $coursecontext ) ) {
 
-            $build = '<p><strong>' . get_string( 'settings:course', 'block_leapgradetracking' ) . '</strong></p><p>';
+            $build = '<p><strong>' . get_string( 'settings:course', 'block_leap' ) . '</strong></p><p>';
 
             if ( isset( $this->config->trackertype ) && !empty( $this->config->trackertype) ) {
-                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'tracker_type:' . $this->config->trackertype, 'block_leapgradetracking' ) . '. ' . $tick;
+                $build .= get_string( 'tracker_type', 'block_leap' ) . ': ' . get_string( 'tracker_type:' . $this->config->trackertype, 'block_leap' ) . '. ' . $tick;
             } else {
-                $build .= get_string( 'tracker_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . $cross;
+                $build .= get_string( 'tracker_type', 'block_leap' ) . ': ' . get_string( 'error:notconf', 'block_leap' ) . '. ' . $cross;
             }
 
             $build .= '<br>';
 
             if ( isset( $this->config->coursetype ) && !empty( $this->config->coursetype) ) {
-                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'course_type:' . $this->config->coursetype, 'block_leapgradetracking' ) . '. ' . $tick;
+                $build .= get_string( 'course_type', 'block_leap' ) . ': ' . get_string( 'course_type:' . $this->config->coursetype, 'block_leap' ) . '. ' . $tick;
             } else {
-                $build .= get_string( 'course_type', 'block_leapgradetracking' ) . ': ' . get_string( 'error:notconf', 'block_leapgradetracking' ) . '. ' . $cross;
+                $build .= get_string( 'course_type', 'block_leap' ) . ': ' . get_string( 'error:notconf', 'block_leap' ) . '. ' . $cross;
             }
 
             $build .= '</p><hr>';

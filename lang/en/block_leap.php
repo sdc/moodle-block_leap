@@ -15,15 +15,15 @@
 // along with Moodle.  If not; see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'block_leapgradetracking'; language 'en'.
+ * Strings for component 'block_leap'; language 'en'.
  *
- * @package    block_leapgradetracking
+ * @package    block_leap
  * @copyright  2014; 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname']           = 'Leap Grade Tracking';
-$string['addinstance']          = 'Add a new Leap Grade Tracking block';
+$string['pluginname']           = 'Leap';
+$string['addinstance']          = 'Add a new Leap block';
 
 $string['leap_url']             = 'Leap installation URL';
 $string['leap_url_desc']        = 'The URL (web address) of your Leap installation (e.g. <code>http://leap.southdevon.ac.uk</code>). Do not use a trailing slash.';
@@ -90,7 +90,7 @@ $string['gradebook:category_title']     = 'Targets';
 // (either here or in the gradebook), then this script may not work as intended.
 // * If you want to rename these columns BEFORE this script has already created columns with these names, do it.
 // * If you want to rename these columns AFTER this script has already created columns with these names, you must change the
-//   names here AND in the whole gradebook (for each course using the SDC Grade Tracking plugin) AT THE SAME TIME and BEFORE
+//   names here AND in the whole gradebook (for each course using the Leap plugin) AT THE SAME TIME and BEFORE
 //   the script runs again.
 $string['gradebook:tag']        = 'TAG';
 $string['gradebook:l3va']       = 'L3VA';

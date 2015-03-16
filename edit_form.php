@@ -15,16 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Leap Grade Tracking instance config form.
+ * Leap instance config form.
  *
- * @package    block_leapgradetracking
+ * @package    block_leap
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-class block_leapgradetracking_edit_form extends block_edit_form {
+class block_leap_edit_form extends block_edit_form {
 
     protected function specific_definition( $mform ) {
 
@@ -34,11 +34,11 @@ class block_leapgradetracking_edit_form extends block_edit_form {
         $mform->addElement( 'header', 'configheader', get_string( 'blocksettings', 'block' ) );
 
         // Drop-down menu of tracker types.
-        $mform->addElement( 'selectgroups', 'config_trackertype', get_string( 'tracker_type', 'block_leapgradetracking' ), $trackertypes);
+        $mform->addElement( 'selectgroups', 'config_trackertype', get_string( 'tracker_type', 'block_leap' ), $trackertypes);
         $mform->setDefault( 'config_trackertype', 'none' );
 
         // Drop-down menu of course types.
-        $mform->addElement( 'selectgroups', 'config_coursetype', get_string( 'course_type', 'block_leapgradetracking' ), $coursetypes );
+        $mform->addElement( 'selectgroups', 'config_coursetype', get_string( 'course_type', 'block_leap' ), $coursetypes );
         $mform->setDefault( 'config_coursetype', 'none' );
     }
 }

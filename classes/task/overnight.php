@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Leap Grade Tracking overnight script class.
+ * Leap overnight script class.
  *
- * @package    block_leapgradetracking
+ * @package    block_leap
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_leapgradetracking\task;
+namespace block_leap\task;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -30,7 +30,7 @@ class overnight extends \core\task\scheduled_task {
 
     public function get_name() {
         // Shown in admin screens.
-        return get_string( 'pluginname', 'block_leapgradetracking' );
+        return get_string( 'pluginname', 'block_leap' );
     }
 
     // A little function to make the db log look nice.
@@ -40,7 +40,7 @@ class overnight extends \core\task\scheduled_task {
         if (!$msg || empty( $msg ) ) {
             $msg = '----';
         }
-        $DB->insert_record( 'block_leapgradetracking_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
+        $DB->insert_record( 'block_leap_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
     }
 
     /*
@@ -67,7 +67,7 @@ class overnight extends \core\task\scheduled_task {
                 )
             ',
             array(
-                'username'      => get_config( 'block_leapgradetracking', 'auth_username' ),
+                'username'      => get_config( 'block_leap', 'auth_username' ),
                 'component'     => 'local_leapwebservices',
                 'enabled'       => 1,
                 'validuntil'    => time(),
@@ -227,7 +227,7 @@ class overnight extends \core\task\scheduled_task {
         // TODO: can we use *all* the details in version.php? It would make a lot more sense.
         $version    = '1.0.19';
         //$build      = '20150128';
-        $build      = get_config( 'block_leapgradetracking', 'version' );
+        $build      = get_config( 'block_leap', 'version' );
 
         // Debugging.
         define( 'DEBUG', true );
@@ -237,8 +237,8 @@ class overnight extends \core\task\scheduled_task {
 
         // Truncate the log table.
         if ( TRUNCATE_LOG ) {
-            echo 'Truncating block_leapgradetracking_log...';
-            $DB->delete_records( 'block_leapgradetracking_log', null );   
+            echo 'Truncating block_leap_log...';
+            $DB->delete_records( 'block_leap_log', null );   
             echo " done.\n";
         }
 
@@ -251,7 +251,7 @@ class overnight extends \core\task\scheduled_task {
 
         // Before almost anything has the chance to fail, reset the fail delay setting back to 0.
         if ( DEBUG ) {
-            if ( !$reset = $DB->set_field( 'task_scheduled', 'faildelay', 0, array( 'component' => 'block_leapgradetracking', 'classname' => '\block_leapgradetracking\task\overnight' ) ) ) {
+            if ( !$reset = $DB->set_field( 'task_scheduled', 'faildelay', 0, array( 'component' => 'block_leap', 'classname' => '\block_leap\task\overnight' ) ) ) {
                 overnight::tlog( 'Scheduled task "fail delay" could not be reset.', 'warn' );
             } else {
                 overnight::tlog( 'Scheduled task "fail delay" reset to 0.', 'dbug' );
@@ -267,7 +267,7 @@ class overnight extends \core\task\scheduled_task {
         overnight::tlog( 'Leap webservice auth hash: ' . AUTH_TOKEN, 'dbug' );
 
         // TODO: quick check to make sure the URL is real and pingable?
-        if ( !$leap_url = get_config( 'block_leapgradetracking', 'leap_url' ) ) {
+        if ( !$leap_url = get_config( 'block_leap', 'leap_url' ) ) {
             overnight::tlog( 'Setting "leap_url" not set.', 'EROR' );
             return false;
         }
@@ -275,8 +275,8 @@ class overnight extends \core\task\scheduled_task {
         overnight::tlog( 'Leap API URL: ' . LEAP_API_URL, 'dbug' );
 
 /*
-        // Get this (Grade Tracking) block's id, as we'll need it later.
-        if ( !$blockid = $DB->get_record( 'block', array( 'name' => 'leapgradetracking' ), 'id' ) ) {
+        // Get this block's id, as we'll need it later.
+        if ( !$blockid = $DB->get_record( 'block', array( 'name' => 'leap' ), 'id' ) ) {
             overnight::tlog( 'Could not get this block\'s ID for some reason.', 'EROR' );
             return false;
         }
@@ -292,7 +292,7 @@ class overnight extends \core\task\scheduled_task {
         //define( 'IDNUMBERLIKE', 'leapcore_test' );
 
         // Category details for the above columns to go into.
-        define( 'CATNAME', get_string( 'gradebook:category_title', 'block_leapgradetracking' ) );
+        define( 'CATNAME', get_string( 'gradebook:category_title', 'block_leap' ) );
 
         // Include some details.
         require( dirname(__FILE__) . '/../../details.php' );
@@ -346,9 +346,9 @@ class overnight extends \core\task\scheduled_task {
         // Define the wanted column names (will appear in this order in the Gradebook, initially).
         // These column names are an integral part of this plugin and should not be changed.
         $column_names = array(
-            get_string( 'gradebook:tag', 'block_leapgradetracking' )    => get_string( 'gradebook:tag_desc', 'block_leapgradetracking' ),
-            get_string( 'gradebook:l3va', 'block_leapgradetracking' )   => get_string( 'gradebook:l3va_desc', 'block_leapgradetracking' ),
-            get_string( 'gradebook:mag', 'block_leapgradetracking' )    => get_string( 'gradebook:mag_desc', 'block_leapgradetracking' ),
+            get_string( 'gradebook:tag', 'block_leap' )    => get_string( 'gradebook:tag_desc', 'block_leap' ),
+            get_string( 'gradebook:l3va', 'block_leap' )   => get_string( 'gradebook:l3va_desc', 'block_leap' ),
+            get_string( 'gradebook:mag', 'block_leap' )    => get_string( 'gradebook:mag_desc', 'block_leap' ),
         );
 
         // Make an array keyed to the column names to store the grades in.
@@ -359,7 +359,7 @@ class overnight extends \core\task\scheduled_task {
 
 
         /**
-         * The next section looks through all courses for those with a properly configured Leap grade tracking block
+         * The next section looks through all courses for those with a properly configured Leap block
          * and adds it (and the tracking configuration) to the $courses array.
          */
 
@@ -383,8 +383,8 @@ class overnight extends \core\task\scheduled_task {
 
                 // First get course context.
                 $coursecontext  = \context_course::instance( $course->id );
-                $blockrecord = $DB->get_record( 'block_instances', array( 'blockname' => 'leapgradetracking', 'parentcontextid' => $coursecontext->id ) );
-                $blockinstance  = block_instance( 'leapgradetracking', $blockrecord );
+                $blockrecord = $DB->get_record( 'block_instances', array( 'blockname' => 'leap', 'parentcontextid' => $coursecontext->id ) );
+                $blockinstance  = block_instance( 'leap', $blockrecord );
 
                 // Check and add trackertype and coursetype to the $course object.
                 if ( 

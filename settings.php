@@ -15,25 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Leap Grade Tracking library files.
+ * Leap library files.
  *
- * @package    block_leapgradetracking
+ * @package    block_leap
  * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $settings->add( new admin_setting_configtext(
-    'block_leapgradetracking/leap_url',
-    get_string( 'leap_url', 'block_leapgradetracking' ),
-    get_string( 'leap_url_desc', 'block_leapgradetracking' ),
+    'block_leap/leap_url',
+    get_string( 'leap_url', 'block_leap' ),
+    get_string( 'leap_url_desc', 'block_leap' ),
     '',
     PARAM_URL
 ));
 
 $settings->add( new admin_setting_configtext(
-    'block_leapgradetracking/auth_username',
-    get_string( 'auth_username', 'block_leapgradetracking' ),
-    get_string( 'auth_username_desc', 'block_leapgradetracking' ),
+    'block_leap/auth_username',
+    get_string( 'auth_username', 'block_leap' ),
+    get_string( 'auth_username_desc', 'block_leap' ),
     '',
     PARAM_USERNAME
 ));

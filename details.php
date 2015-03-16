@@ -10,19 +10,19 @@
  * Differrent types of tracker.
  */
 $trackertypes = array (
-    get_string( 'tracker_type_title:none', 'block_leapgradetracking' ) => array (
-        ''          => get_string( 'tracker_type:none', 'block_leapgradetracking' ),
+    get_string( 'tracker_type_title:none', 'block_leap' ) => array (
+        ''          => get_string( 'tracker_type:none', 'block_leap' ),
     ),
 
-    get_string( 'tracker_type_title:prod', 'block_leapgradetracking' ) => array (
-        'core'      => get_string( 'tracker_type:core', 'block_leapgradetracking' ),
-        'english'   => get_string( 'tracker_type:english', 'block_leapgradetracking' ),
-        'maths'     => get_string( 'tracker_type:maths', 'block_leapgradetracking' ),
-        'ppd'       => get_string( 'tracker_type:ppd', 'block_leapgradetracking' ),
+    get_string( 'tracker_type_title:prod', 'block_leap' ) => array (
+        'core'      => get_string( 'tracker_type:core', 'block_leap' ),
+        'english'   => get_string( 'tracker_type:english', 'block_leap' ),
+        'maths'     => get_string( 'tracker_type:maths', 'block_leap' ),
+        'ppd'       => get_string( 'tracker_type:ppd', 'block_leap' ),
     ),
 
-    get_string( 'tracker_type_title:dev', 'block_leapgradetracking' ) => array (
-        'test'      => get_string( 'tracker_type:test', 'block_leapgradetracking' ),
+    get_string( 'tracker_type_title:dev', 'block_leap' ) => array (
+        'test'      => get_string( 'tracker_type:test', 'block_leap' ),
     ),
 );
 
@@ -32,43 +32,43 @@ $trackertypes = array (
 // TODO: the nested arrays have keys like 'a2_' which we can explode on _ to locate the course type, and therefore which scale to use?
 // TODO: Should we move choice of which scale we're going to use for each course type into the global config? e.g. BTEC courses are scale 'SDC BTEC'?
 $coursetypes = array (
-    get_string( 'course_type_title:none', 'block_leapgradetracking' ) => array (
-        ''          => get_string( 'course_type:none', 'block_leapgradetracking' ),
+    get_string( 'course_type_title:none', 'block_leap' ) => array (
+        ''          => get_string( 'course_type:none', 'block_leap' ),
     ),
 
-    get_string( 'course_type_title:asa2', 'block_leapgradetracking' ) => array (
-        'a2_artdes'         => get_string( 'course_type:a2_artdes', 'block_leapgradetracking' ),
-        'a2_artdesphoto'    => get_string( 'course_type:a2_artdesphoto', 'block_leapgradetracking' ),
-        'a2_artdestext'     => get_string( 'course_type:a2_artdestext', 'block_leapgradetracking' ),
-        'a2_biology'        => get_string( 'course_type:a2_biology', 'block_leapgradetracking' ),
-        'a2_busstud'        => get_string( 'course_type:a2_busstud', 'block_leapgradetracking' ),
-        'a2_chemistry'      => get_string( 'course_type:a2_chemistry', 'block_leapgradetracking' ),
-        'a2_englishlang'    => get_string( 'course_type:a2_englishlang', 'block_leapgradetracking' ),
-        'a2_englishlit'     => get_string( 'course_type:a2_englishlit', 'block_leapgradetracking' ),
-        'a2_envsci'         => get_string( 'course_type:a2_envsci', 'block_leapgradetracking' ),
-        'a2_envstud'        => get_string( 'course_type:a2_envstud', 'block_leapgradetracking' ),
-        'a2_filmstud'       => get_string( 'course_type:a2_filmstud', 'block_leapgradetracking' ),
-        'a2_geography'      => get_string( 'course_type:a2_geography', 'block_leapgradetracking' ),
-        'a2_govpoli'        => get_string( 'course_type:a2_govpoli', 'block_leapgradetracking' ),
-        'a2_history'        => get_string( 'course_type:a2_history', 'block_leapgradetracking' ),
-        'a2_humanbiology'   => get_string( 'course_type:a2_humanbiology', 'block_leapgradetracking' ),
-        'a2_law'            => get_string( 'course_type:a2_law', 'block_leapgradetracking' ),
-        'a2_maths'          => get_string( 'course_type:a2_maths', 'block_leapgradetracking' ),
-        'a2_mathsfurther'   => get_string( 'course_type:a2_mathsfurther', 'block_leapgradetracking' ),
-        'a2_media'          => get_string( 'course_type:a2_media', 'block_leapgradetracking' ),
-        'a2_philosophy'     => get_string( 'course_type:a2_philosophy', 'block_leapgradetracking' ),
-        'a2_physics'        => get_string( 'course_type:a2_physics', 'block_leapgradetracking' ),
-        'a2_psychology'     => get_string( 'course_type:a2_psychology', 'block_leapgradetracking' ),
-        'a2_sociology'      => get_string( 'course_type:a2_sociology', 'block_leapgradetracking' ),
+    get_string( 'course_type_title:asa2', 'block_leap' ) => array (
+        'a2_artdes'         => get_string( 'course_type:a2_artdes', 'block_leap' ),
+        'a2_artdesphoto'    => get_string( 'course_type:a2_artdesphoto', 'block_leap' ),
+        'a2_artdestext'     => get_string( 'course_type:a2_artdestext', 'block_leap' ),
+        'a2_biology'        => get_string( 'course_type:a2_biology', 'block_leap' ),
+        'a2_busstud'        => get_string( 'course_type:a2_busstud', 'block_leap' ),
+        'a2_chemistry'      => get_string( 'course_type:a2_chemistry', 'block_leap' ),
+        'a2_englishlang'    => get_string( 'course_type:a2_englishlang', 'block_leap' ),
+        'a2_englishlit'     => get_string( 'course_type:a2_englishlit', 'block_leap' ),
+        'a2_envsci'         => get_string( 'course_type:a2_envsci', 'block_leap' ),
+        'a2_envstud'        => get_string( 'course_type:a2_envstud', 'block_leap' ),
+        'a2_filmstud'       => get_string( 'course_type:a2_filmstud', 'block_leap' ),
+        'a2_geography'      => get_string( 'course_type:a2_geography', 'block_leap' ),
+        'a2_govpoli'        => get_string( 'course_type:a2_govpoli', 'block_leap' ),
+        'a2_history'        => get_string( 'course_type:a2_history', 'block_leap' ),
+        'a2_humanbiology'   => get_string( 'course_type:a2_humanbiology', 'block_leap' ),
+        'a2_law'            => get_string( 'course_type:a2_law', 'block_leap' ),
+        'a2_maths'          => get_string( 'course_type:a2_maths', 'block_leap' ),
+        'a2_mathsfurther'   => get_string( 'course_type:a2_mathsfurther', 'block_leap' ),
+        'a2_media'          => get_string( 'course_type:a2_media', 'block_leap' ),
+        'a2_philosophy'     => get_string( 'course_type:a2_philosophy', 'block_leap' ),
+        'a2_physics'        => get_string( 'course_type:a2_physics', 'block_leap' ),
+        'a2_psychology'     => get_string( 'course_type:a2_psychology', 'block_leap' ),
+        'a2_sociology'      => get_string( 'course_type:a2_sociology', 'block_leap' ),
     ),
 
-    get_string( 'course_type_title:btec', 'block_leapgradetracking' ) => array (
-        'btec_ed_applsci'   => get_string( 'course_type:btec_ed_applsci', 'block_leapgradetracking' ),
+    get_string( 'course_type_title:btec', 'block_leap' ) => array (
+        'btec_ed_applsci'   => get_string( 'course_type:btec_ed_applsci', 'block_leap' ),
     ),
 
-    get_string( 'course_type_title:gcse', 'block_leapgradetracking' ) => array (
-        'gcse_english'      => get_string( 'course_type:gcse_english', 'block_leapgradetracking' ),
-        'gcse_maths'        => get_string( 'course_type:gcse_maths', 'block_leapgradetracking' ),
+    get_string( 'course_type_title:gcse', 'block_leap' ) => array (
+        'gcse_english'      => get_string( 'course_type:gcse_english', 'block_leap' ),
+        'gcse_maths'        => get_string( 'course_type:gcse_maths', 'block_leap' ),
     ),
 );
 

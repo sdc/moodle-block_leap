@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="block/leapgradetracking/db" VERSION="20150128" COMMENT="XMLDB file for Moodle block/leapgradetracking"
+<XMLDB PATH="block/leap/db" VERSION="20150128" COMMENT="XMLDB file for Moodle block/leap"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="block_leapgradetracking_log" COMMENT="A log table for Moodle's Leap grade tracking block.">
+
+    <TABLE NAME="block_leap_log" COMMENT="A log table for Moodle's Leap block.">
       <FIELDS>
         <FIELD NAME="id"          TYPE="int"  LENGTH="10"   NOTNULL="true"                  SEQUENCE="true"/>
         <FIELD NAME="type"        TYPE="char" LENGTH="4"    NOTNULL="true"  DEFAULT="----"  SEQUENCE="false"  COMMENT="Short code for what type of information is contained in this row."/>
@@ -15,5 +16,17 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+
+    <TABLE NAME="block_leap_coursecodes" COMMENT="Containing all course codes to be looked up via the block.">
+      <FIELDS>
+        <FIELD NAME="id"    TYPE="int"  LENGTH="10"   NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="code"  TYPE="char" LENGTH="25"   NOTNULL="true"  SEQUENCE="false"  COMMENT="Course code, as found in Leap."/>
+        <FIELD NAME="name"  TYPE="char" LENGTH="100"  NOTNULL="true"  SEQUENCE="false"  COMMENT="Course name, as found in Leap."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
   </TABLES>
 </XMLDB>

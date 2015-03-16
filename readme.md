@@ -1,4 +1,4 @@
-# Leap Grade Tracking plugin for Moodle
+# Leap plugin for Moodle
 
 This plugin runs overnight and creates columns in a course's gradebook, assigns grading critera, pre-populates them.
 
@@ -10,7 +10,7 @@ Moodle 2.7 or newer. Tested exhaustively with 2.7.4.
 
 ## Installation
 
-* Copy the 'leapgradetracking' folder into blocks/
+* Copy the 'leap' folder into blocks/
 * Visit your Moodle as admin and click on Notifications, follow prompts.
 
 ## Use 
