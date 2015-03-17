@@ -26,7 +26,6 @@
 require_once('../../config.php');
 
 $out = '$(document).ready(function () {
-  alert("Screw you, hippie!");
   $("#id_config_coursecodes").tokenInput("' . new moodle_url( '/blocks/leap/coursecodes.php' ) . '");
 });';
 
