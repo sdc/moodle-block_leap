@@ -34,6 +34,8 @@ $string['auth_username_desc']   = 'The username of the webservice-privileged "Le
 $string['settings:global']      = 'Global settings';
 $string['settings:course']      = 'This course\'s settings';
 
+$string['grade_tracking']       = 'Grade Tracking';
+
 $string['tracker_type']         = 'Tracker type';
 
 $string['tracker_type_title:none']  = 'None';
@@ -83,6 +85,11 @@ $string['course_type:gcse_english']     = 'English';
 $string['course_type:gcse_maths']       = 'Maths';
 
 $string['error:notconf']    = 'not configured';
+
+$string['course_codes_header']          = 'Automatic Enrolment';
+$string['course_codes_label']           = 'Adding course codes';
+$string['course_codes_desc']            = 'Please create a comma-separated list of course codes (e.g. <code>AS3PSY1P,A23PSY1P,GC2PSY1P</code>) so that if that code is found against that user in Leap, they will be enrolled on this Moodle course.';
+$string['course_codes']                 = 'Course Codes';
 
 $string['gradebook:category_title']     = 'Targets';
 

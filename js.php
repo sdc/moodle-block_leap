@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,21 +16,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * This file is part of the Database module for Moodle
  *
- * @package    block_leap
- * @copyright  2014, 2015 Paul Vaughan {@link http://commoodle.southdevon.ac.uk}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2005 Martin Dougiamas  http://dougiamas.com
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_data
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once('../../config.php');
 
-$plugin->version        = 2015031700;
-$plugin->requires       = 2014051200;               // Requires Moodle 2.7 or newer.
-$plugin->component      = 'block_leap';
-$plugin->maturity       = MATURITY_ALPHA;
-$plugin->release        = '1.0.19';
-$plugin->dependencies   = array (
-    'local_leapwebservices'     => 2014112400,      // Needs the Leap web services local plugin.
-);
-//$plugin->cron           = 60;
+$out = '$(document).ready(function () {
+  alert("Screw you, hippie!");
+  $("#id_config_coursecodes").tokenInput("' . new moodle_url( '/blocks/leap/coursecodes.php' ) . '");
+});';
+
+echo $out;
