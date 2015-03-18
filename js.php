@@ -23,10 +23,27 @@
  * @package mod_data
  */
 
-require_once('../../config.php');
+require_once( '../../config.php' );
+
+$coursecodes = new moodle_url( '/blocks/leap/coursecodes.php' );
 
 $out = '$(document).ready(function () {
-  $("#id_config_coursecodes").tokenInput("' . new moodle_url( '/blocks/leap/coursecodes.php' ) . '");
+
+    var data = $("#id_config_coursecodes").val();
+    var array = data.split(",");
+    var out = [];
+    for ( x in array ) {
+        if (array[x] !== "") {
+            out.push({"id":array[x],"name":array[x]});
+        }
+    }
+
+    if (out.length > 0) {
+        $("#id_config_coursecodes").tokenInput("' . $coursecodes . '", { prePopulate: out });
+    } else {
+        $("#id_config_coursecodes").tokenInput("' . $coursecodes . '");
+    }
+
 });';
 
 echo $out;
