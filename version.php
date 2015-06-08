@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2015031802;
+$plugin->version        = 2015060800;
 $plugin->requires       = 2014051200;               // Requires Moodle 2.7 or newer.
 $plugin->component      = 'block_leap';
 $plugin->maturity       = MATURITY_ALPHA;

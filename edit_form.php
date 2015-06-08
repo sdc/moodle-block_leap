@@ -70,8 +70,11 @@ class block_leap_edit_form extends block_edit_form {
         $mform->addElement( 'selectgroups', 'config_trackertype', get_string( 'tracker_type', 'block_leap' ), $trackertypes);
         $mform->setDefault( 'config_trackertype', 'none' );
 
+        /*
+        /* Removing this as it's not required any more.
         // Drop-down menu of course types.
         $mform->addElement( 'selectgroups', 'config_coursetype', get_string( 'course_type', 'block_leap' ), $coursetypes );
         $mform->setDefault( 'config_coursetype', 'none' );
+        */
     }
 }
