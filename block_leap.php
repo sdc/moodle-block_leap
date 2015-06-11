@@ -22,7 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined( 'MOODLE_INTERNAL' ) || die();
+
+include_once( 'locallib.php' );
 
 class block_leap extends block_base {
     
@@ -139,6 +141,8 @@ class block_leap extends block_base {
                     //$auth_token = $DB->get_record( 'external_tokens', array( 'userid' => $auth_userid->id ) );
 
                     // Checking for a valid user for a specific, enabled component.
+                    $auth_token = get_auth_token();
+                    /*
                     $auth_token = $DB->get_record_sql('
                         SELECT token, validuntil, enabled
                         FROM {external_tokens}, {external_services}
@@ -149,6 +153,7 @@ class block_leap extends block_base {
                         ',
                         array( 'component' => 'local_leapwebservices', 'enabled' => 1, 'userid' => $auth_userid->id )
                         );
+                    */
 
                     if ( empty( $auth_token ) ) {
                         // No external token found in the database for that user.
@@ -191,12 +196,16 @@ class block_leap extends block_base {
                 $build .= get_string( 'tracker_type', 'block_leap' ) . ': ' . get_string( 'error:notconf', 'block_leap' ) . '. ' . $cross;
             }
 
-            $build .= '<br>';
+            if ( get_config( 'block_leap', 'generate_mag' ) ) {
 
-            if ( isset( $this->config->coursetype ) && !empty( $this->config->coursetype) ) {
-                $build .= get_string( 'course_type', 'block_leap' ) . ': ' . get_string( 'course_type:' . $this->config->coursetype, 'block_leap' ) . '. ' . $tick;
-            } else {
-                $build .= get_string( 'course_type', 'block_leap' ) . ': ' . get_string( 'error:notconf', 'block_leap' ) . '. ' . $cross;
+                $build .= '<br>';
+
+                if ( isset( $this->config->coursetype ) && !empty( $this->config->coursetype) ) {
+                    $build .= get_string( 'course_type', 'block_leap' ) . ': ' . get_string( 'course_type:' . $this->config->coursetype, 'block_leap' ) . '. ' . $tick;
+                } else {
+                    $build .= get_string( 'course_type', 'block_leap' ) . ': ' . get_string( 'error:notconf', 'block_leap' ) . '. ' . $cross;
+                }
+
             }
 
             $build .= '</p><hr>';

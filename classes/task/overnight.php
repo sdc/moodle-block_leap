@@ -26,6 +26,8 @@ namespace block_leap\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+include_once( $CFG->dirroot . '/blocks/leap/locallib.php' );
+
 class overnight extends \core\task\scheduled_task {
 
     public function get_name() {
@@ -41,13 +43,14 @@ class overnight extends \core\task\scheduled_task {
             $msg = '----';
         }
         $DB->insert_record( 'block_leap_log', array( 'type' => $type, 'content' => $msg, 'timelogged' => time() ) );
+        //echo $type . ' ' . $msg;
     }
 
     /*
      * Gets the auth token, based on the username specified in the block's global config.
      * Takes no parameters, returns a 32-character sting.
      * TODO: Move this to lib.php or locallib.php so it can be reused?
-     */
+     *
     private function get_auth_token() {
         global $DB;
 
@@ -76,8 +79,9 @@ class overnight extends \core\task\scheduled_task {
 
         return $auth_token->token;
     }
+    */
 
-
+    /* Might have to can the whole following procedure and any calls to it. */
     /**
      * Process the L3VA score into a MAG.
      *
@@ -259,11 +263,12 @@ class overnight extends \core\task\scheduled_task {
         }
 
         // Check for required config settings and fail gracefully if they're not available.
-        if ( !$auth_token = overnight::get_auth_token() ) {
+        //if ( !$auth_token = overnight::get_auth_token() ) {
+        if ( !$auth_token = get_auth_token() ) {
             overnight::tlog( 'Could not find a valid auth token.', 'EROR' );
             return false;
         }
-        define( 'AUTH_TOKEN', $auth_token );
+        define( 'AUTH_TOKEN', $auth_token->token );
         overnight::tlog( 'Leap webservice auth hash: ' . AUTH_TOKEN, 'dbug' );
 
         // TODO: quick check to make sure the URL is real and pingable?
@@ -347,8 +352,8 @@ class overnight extends \core\task\scheduled_task {
         // These column names are an integral part of this plugin and should not be changed.
         $column_names = array(
             get_string( 'gradebook:tag', 'block_leap' )    => get_string( 'gradebook:tag_desc', 'block_leap' ),
-            get_string( 'gradebook:l3va', 'block_leap' )   => get_string( 'gradebook:l3va_desc', 'block_leap' ),
-            get_string( 'gradebook:mag', 'block_leap' )    => get_string( 'gradebook:mag_desc', 'block_leap' ),
+            //get_string( 'gradebook:l3va', 'block_leap' )   => get_string( 'gradebook:l3va_desc', 'block_leap' ),
+            //get_string( 'gradebook:mag', 'block_leap' )    => get_string( 'gradebook:mag_desc', 'block_leap' ),
         );
 
         // Make an array keyed to the column names to store the grades in.
@@ -374,6 +379,7 @@ class overnight extends \core\task\scheduled_task {
         } else {
             $allcourses = $DB->get_records( 'course', null, 'id ASC', 'id, shortname, fullname' );
         }
+
         foreach ( $allcourses as $course ) {
             
             // Ignore the course with id = 1, as it's the front page.
@@ -383,7 +389,7 @@ class overnight extends \core\task\scheduled_task {
 
                 // First get course context.
                 $coursecontext  = \context_course::instance( $course->id );
-                $blockrecord = $DB->get_record( 'block_instances', array( 'blockname' => 'leap', 'parentcontextid' => $coursecontext->id ) );
+                $blockrecord    = $DB->get_record( 'block_instances', array( 'blockname' => 'leap', 'parentcontextid' => $coursecontext->id ) );
                 $blockinstance  = block_instance( 'leap', $blockrecord );
 
                 // Check and add trackertype and coursetype to the $course object.
@@ -396,8 +402,13 @@ class overnight extends \core\task\scheduled_task {
                     $course->trackertype    = $blockinstance->config->trackertype;
                     $course->coursetype     = $blockinstance->config->coursetype;
 
+                    // Setting some more variables we'll need in due course.
+                    $course->scalename      = null;
+                    $course->scaleid        = null;
+
                     // All good, so...
                     $courses[] = $course;
+
                     overnight::tlog( 'Course \'' . $course->fullname . '\' (' . $course->shortname . ') [' . $course->id . '] added to process list.', 'info');
                     if ( DEBUG ) {
                         overnight::tlog( json_encode( $course ), 'dbug');
@@ -406,6 +417,49 @@ class overnight extends \core\task\scheduled_task {
                 }
             }
         }
+
+//var_dump($courses); exit(0);
+
+/* Example $courses array.
+array(2) {
+  [0]=>
+  object(stdClass)#91 (7) {
+    ["id"]=>
+    string(1) "2"
+    ["shortname"]=>
+    string(5) "TC101"
+    ["fullname"]=>
+    string(15) "Test Course 101"
+    ["trackertype"]=>
+    string(7) "english"
+    ["coursetype"]=>
+    string(14) "a2_englishlang"
+    ["scalename"]=>
+    string(0) ""
+    ["scaleid"]=>
+    NULL
+  }
+  [1]=>
+  object(stdClass)#92 (7) {
+    ["id"]=>
+    string(1) "3"
+    ["shortname"]=>
+    string(5) "TC201"
+    ["fullname"]=>
+    string(15) "Test course 201"
+    ["trackertype"]=>
+    string(7) "english"
+    ["coursetype"]=>
+    string(6) "a2_law"
+    ["scalename"]=>
+    string(0) ""
+    ["scaleid"]=>
+    NULL
+  }
+}
+
+
+*/
 
         $num_courses = count( $courses );
         $cur_courses = 0;
@@ -419,82 +473,57 @@ class overnight extends \core\task\scheduled_task {
 
 
         /**
-         * Sets up each course tagged with leapcore_ with a category and columns within it.
+         * Sets up each configured course with a category and columns within it.
          */
 
-        foreach ($courses as $course) {
+        foreach ( $courses as $course ) {
 
             $cur_courses++;
 
             overnight::tlog('Processing course (' . $cur_courses . '/' . $num_courses . ') ' . $course->fullname . ' (' . $course->shortname . ') [' . $course->id . '] at ' . date( 'c', time() ) . '.', 'info');
             $logging['courses'][] = $course->fullname . ' (' . $course->shortname . ') [' . $course->id . '].';
 
-            // Get the course's context.
-            $contextid = \context_course::instance( $course->id );
 
-            // Set up the scale to be used here, null by default.
-            $course->scalename  = '';
-            $course->scaleid    = null;
+            // Work out the scale from the course type.
+            if ( stristr( $course->coursetype, 'as' ) || stristr( $course->coursetype, 'a2' ) ) {
+                $course->scalename  = 'A Level';
+            } else if ( stristr( $course->coursetype, 'gcse' ) ) {
+                $course->scalename  = 'GCSE';
+            } else if ( stristr( $course->coursetype, 'btec' ) ) {
+                $course->scalename  = 'BTEC';
+            }
+            overnight::tlog( 'Course ' . $course->id . ' appears to be a ' . $course->scalename . ' course.', 'info' );
 
-            $leapcore = explode( '|', $course->idnumber );
-            foreach ( $leapcore as $key => $value ) {
-                if ( empty( $value ) ) {
-                    unset ( $leapcore[$key] );
-                } else {
-                    // This check is specifically for A2 (A Level) courses.
-                    if ( stristr( $value, str_replace ( '%', '', IDNUMBERLIKE ) . 'a2' ) ) {
-                        $course->scalename  = 'A Level';
-                        $course->coursetype = $value;
+            // Get the scale ID.
+            if ( !$moodlescale = $DB->get_record( 'scale', array( 'name' => $course->scalename ), 'id' ) ) {
+                overnight::tlog( '- Could not find a scale called \'' . $course->scalename . '\' for course ' . $course->id . '.', 'warn' );
 
-                        overnight::tlog( 'Course ' . $course->id . ' appears to be an A Level (A2) course, so setting that scale for use later.', 'info' );
-
-                        // Get the scale ID.
-                        if ( !$moodlescaleid = $DB->get_record( 'scale', array( 'name' => 'A Level' ), 'id' ) ) {
-                            overnight::tlog( '- Could not find a scale called \'' . $course->scalename . '\' for course ' . $course->id . '.', 'warn' );
-
-                        } else {
-                            // Scale located.
-                            $course->scaleid = $moodlescaleid->id;
-                            overnight::tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescaleid->id . '.', 'info' );
-                        }
-
-                        break;
-
-                    } else if ( stristr( $value, str_replace ( '%', '', IDNUMBERLIKE ) . 'gcse' ) ) {
-                        // This check is specifically for GCSE courses.
-                        $course->scalename  = 'GCSE';
-                        $course->coursetype = $value;
-
-                        overnight::tlog( 'Course ' . $course->id . ' appears to be a GCSE course, so setting that scale for use later.', 'info' );
-
-                        // Get the scale ID.
-                        if ( !$moodlescaleid = $DB->get_record( 'scale', array( 'name' => 'GCSE' ), 'id' ) ) {
-                            overnight::tlog( '- Could not find a scale called \'' . $course->scalename . '\' for course ' . $course->id . '.', 'warn' );
-
-                        } else {
-                            // Scale located.
-                            $course->scaleid = $moodlescaleid->id;
-                            overnight::tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescaleid->id . '.', 'info' );
-                        }
-
-                        break;
-
-                    } else {
-                        $course->coursetype = $value;
-                    }
-                }
-
+            } else {
+                // Scale located.
+                $course->scaleid = $moodlescale->id;
+                overnight::tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescale->id . '.', 'info' );
             }
 
-            // If we've found an A2 course, set the scale here.
-            if ( !empty( $course->scalename ) ) {
-                $gradeid = 2;                   // Set this to scale.
-                $scaleid = $course->scaleid;    // Set this to what we pulled out of Moodle earlier.
 
-                overnight::tlog('- Grade ID \'' . $gradeid . '\' and scale ID \'' . $scaleid . '\' set.');
+
+            overnight::tlog( json_encode( $course ), '>dbg');
+            //var_dump($courses); exit(0);
+
+// Good to here.
+
+
+
+
+            // If we've found an A2 course, set the scale here.
+            //if ( !empty( $course->scalename ) ) {
+            //    $gradeid = 2;                   // Set this to scale.
+            //    $scaleid = $course->scaleid;    // Set this to what we pulled out of Moodle earlier.
+            //    overnight::tlog('- Grade ID \'' . $gradeid . '\' and scale ID \'' . $scaleid . '\' set.');
 
             // Figure out the grade type and scale here, pulled directly from the course's gradebook's course itemtype.
-            } else if ( $coursegradescale = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' ) ) {
+            //} else if ( $coursegradescale = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' ) ) {
+            
+            if ( $coursegradescale = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' ) ) {
 
                 $gradeid = $coursegradescale->gradetype;
                 $scaleid = $coursegradescale->scaleid;

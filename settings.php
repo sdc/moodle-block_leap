@@ -37,3 +37,12 @@ $settings->add( new admin_setting_configtext(
     '',
     PARAM_USERNAME
 ));
+
+$choices = array( 0 => 'No', 1 => 'Yes' );
+$settings->add( new admin_setting_configselect(
+    'block_leap/generate_mag',
+    get_string( 'generate_mag', 'block_leap' ),
+    get_string( 'generate_mag_desc', 'block_leap' ),
+    0,
+    $choices
+));

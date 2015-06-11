@@ -37,6 +37,7 @@ $coursetypes = array (
     ),
 
     get_string( 'course_type_title:asa2', 'block_leap' ) => array (
+        'a2_generic'        => get_string( 'course_type:a2_generic', 'block_leap' ),
         'a2_artdes'         => get_string( 'course_type:a2_artdes', 'block_leap' ),
         'a2_artdesphoto'    => get_string( 'course_type:a2_artdesphoto', 'block_leap' ),
         'a2_artdestext'     => get_string( 'course_type:a2_artdestext', 'block_leap' ),
@@ -63,10 +64,12 @@ $coursetypes = array (
     ),
 
     get_string( 'course_type_title:btec', 'block_leap' ) => array (
+        'btec_generic'      => get_string( 'course_type:btec_generic', 'block_leap' ),
         'btec_ed_applsci'   => get_string( 'course_type:btec_ed_applsci', 'block_leap' ),
     ),
 
     get_string( 'course_type_title:gcse', 'block_leap' ) => array (
+        'gcse_generic'      => get_string( 'course_type:gcse_generic', 'block_leap' ),
         'gcse_english'      => get_string( 'course_type:gcse_english', 'block_leap' ),
         'gcse_maths'        => get_string( 'course_type:gcse_maths', 'block_leap' ),
     ),

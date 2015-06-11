@@ -31,6 +31,9 @@ $string['leap_url_desc']        = 'The URL (web address) of your Leap installati
 $string['auth_username']        = '"Leap user" username';
 $string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the <a href="https://github.com/sdc/moodle-local_leapwebservices" target="_blank">Leap Webservices plugin</a>.';
 
+$string['generate_mag']         = 'MAG generation';
+$string['generate_mag_desc']    = 'If Yes, will create gradebook columns for Minimum Achievable Grades and generate the grade from the LAT score stored in Leap. Otherwise, will not create and populate gradebook columns.';
+
 $string['settings:global']      = 'Global settings';
 $string['settings:course']      = 'This course\'s settings';
 
@@ -57,6 +60,7 @@ $string['course_type_title:btec']   = 'BTEC';
 $string['course_type_title:gcse']   = 'GCSE';
 
 $string['course_type:none']             = 'None';
+$string['course_type:a2_generic']       = 'Generic AS/A2 Level';
 $string['course_type:a2_artdes']        = 'Art &amp; Design';
 $string['course_type:a2_artdesphoto']   = 'Art &amp; Design (Photography)';
 $string['course_type:a2_artdestext']    = 'Art &amp; Design (Textiles)';
@@ -80,7 +84,9 @@ $string['course_type:a2_philosophy']    = 'Philosophy';
 $string['course_type:a2_physics']       = 'Physics';
 $string['course_type:a2_psychology']    = 'Psychology';
 $string['course_type:a2_sociology']     = 'Sociology';
+$string['course_type:btec_generic']     = 'Generic BTEC';
 $string['course_type:btec_ed_applsci']  = 'Extended Diploma in Applied Science';
+$string['course_type:gcse_generic']     = 'Generic GCSE';
 $string['course_type:gcse_english']     = 'English';
 $string['course_type:gcse_maths']       = 'Maths';
 

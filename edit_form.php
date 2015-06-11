@@ -32,21 +32,9 @@ class block_leap_edit_form extends block_edit_form {
 
         $PAGE->requires->jquery();
         $PAGE->requires->jquery_plugin( 'tokeninput', 'block_leap' );
-        //$PAGE->requires->js( new moodle_url( '/blocks/leap/js/enabletokeninput.php' ) );
         $PAGE->requires->js( new moodle_url( '/blocks/leap/js.php' ) );
 
         $PAGE->requires->css( new moodle_url( '/blocks/leap/css/token-input.css' ) );
-
-/*
-        echo html_writer::script( false, new moodle_url( '/blocks/leap/js/jquery.min.js' ) );
-        echo html_writer::script( false, new moodle_url( '/blocks/leap/js/jquery-tokeninput/build/jquery.tokeninput.min.js' ) );
-        // This is an 'a' link not a 'link' link.
-        echo '<link rel="stylesheet" type="text/css" href="' . new moodle_url( '/blocks/leap/css/token-input.css' ) . '">' . "\n" ;
-*/
-
-//        echo html_writer::script( '$(document).ready(function () {
-//    $("#id_config_coursecodes").tokenInput("' . new moodle_url( '/blocks/leap/coursecodes.php' ) . '")
-//});');
 
         // Section header for course codes for enrolment.
         $mform->addElement( 'header', 'configheader', get_string( 'course_codes_header', 'block_leap' ) );
@@ -70,11 +58,11 @@ class block_leap_edit_form extends block_edit_form {
         $mform->addElement( 'selectgroups', 'config_trackertype', get_string( 'tracker_type', 'block_leap' ), $trackertypes);
         $mform->setDefault( 'config_trackertype', 'none' );
 
-        /*
-        /* Removing this as it's not required any more.
         // Drop-down menu of course types.
-        $mform->addElement( 'selectgroups', 'config_coursetype', get_string( 'course_type', 'block_leap' ), $coursetypes );
-        $mform->setDefault( 'config_coursetype', 'none' );
-        */
+        if ( get_config( 'block_leap', 'generate_mag' ) ) {
+            $mform->addElement( 'selectgroups', 'config_coursetype', get_string( 'course_type', 'block_leap' ), $coursetypes );
+            $mform->setDefault( 'config_coursetype', 'none' );
+        }
+
     }
 }
