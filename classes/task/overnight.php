@@ -49,41 +49,6 @@ class overnight extends \core\task\scheduled_task {
         //echo $type . ' ' . $msg;
     }
 
-    /*
-     * Gets the auth token, based on the username specified in the block's global config.
-     * Takes no parameters, returns a 32-character sting.
-     * TODO: Move this to lib.php or locallib.php so it can be reused?
-     *
-    private function get_auth_token() {
-        global $DB;
-
-        $auth_token = $DB->get_record_sql('
-            SELECT token
-            FROM {external_tokens}, {external_services}, {user}
-            WHERE {user}.username = :username
-                AND {user}.id = {external_tokens}.userid
-                AND {external_tokens}.externalserviceid = {external_services}.id
-                AND {external_services}.component = :component
-                AND {external_services}.enabled = :enabled
-                AND
-                (
-                    {external_tokens}.validuntil = 0
-                        OR
-                    {external_tokens}.validuntil > :validuntil
-                )
-            ',
-            array(
-                'username'      => get_config( 'block_leap', 'auth_username' ),
-                'component'     => 'local_leapwebservices',
-                'enabled'       => 1,
-                'validuntil'    => time(),
-            )
-        );
-
-        return $auth_token->token;
-    }
-    */
-
     /* Might have to can the whole following procedure and any calls to it. */
     /**
      * Process the L3VA score into a MAG.
@@ -266,7 +231,6 @@ class overnight extends \core\task\scheduled_task {
         }
 
         // Check for required config settings and fail gracefully if they're not available.
-        //if ( !$auth_token = overnight::get_auth_token() ) {
         if ( !$auth_token = get_auth_token() ) {
             overnight::tlog( 'Could not find a valid auth token.', 'EROR' );
             return false;
@@ -282,16 +246,6 @@ class overnight extends \core\task\scheduled_task {
         define( 'LEAP_API_URL', $leap_url . '/people/%s.json?token=%s' );
         overnight::tlog( 'Leap API URL: ' . LEAP_API_URL, 'dbug' );
 
-/*
-        // Get this block's id, as we'll need it later.
-        if ( !$blockid = $DB->get_record( 'block', array( 'name' => 'leap' ), 'id' ) ) {
-            overnight::tlog( 'Could not get this block\'s ID for some reason.', 'EROR' );
-            return false;
-        }
-        define( 'BLOCK_ID', $blockid->id );
-        overnight::tlog( 'This block\'s id: ' . BLOCK_ID, 'dbug' );
-*/
-
         // Number of decimal places in the processed targets (and elsewhere).
         define( 'DECIMALS', 3 );
 
@@ -304,8 +258,6 @@ class overnight extends \core\task\scheduled_task {
 
         // Include some details.
         require( dirname(__FILE__) . '/../../details.php' );
-
-        //require_once $CFG->dirroot.'/grade/lib.php';
 
         // Logging array for the end-of-script summary.
         $logging = array(
@@ -527,6 +479,7 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
             //var_dump($courses); exit(0);
 */
 
+
             overnight::tlog( json_encode( $course ), '>dbg');
 
 
@@ -556,34 +509,32 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
 /*
             if ( $coursegradescale = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' ) ) {
 
-                $gradeid = $coursegradescale->gradetype;
-                $scaleid = $coursegradescale->scaleid;
+                $course->gradeid = $coursegradescale->gradetype;
+                $course->scaleid = $coursegradescale->scaleid;
 
-                // Found a grade type
-                overnight::tlog('Gradetype \'' . $gradeid . '\' (' . $gradetypes[$gradeid] . ') found.', 'info');
+                overnight::tlog( 'Gradetype \'' . $course->gradeid . '\' (' . $gradetypes[$course->gradeid] . ') found.', 'info' );
 
                 // If the grade type is 2 / scale.
-                if ( $gradeid == 2 ) {
-                    if ( $coursescale = $DB->get_record( 'scale', array( 'id' => $scaleid ) ) ) {
+                if ( $course->gradeid == 2 ) {
+                    if ( $coursescale = $DB->get_record( 'scale', array( 'id' => $course->scaleid ) ) ) {
 
                         $course->scalename  = $coursescale->name;
-                        $course->scaleid    = $scaleid;
+                        //$course->scaleid    = $scaleid;
 
-                        $course->coursetype = $coursescale->name;
+                        //$course->coursetype = $coursescale->name;
 
-                        $tolog = '- Scale \'' . $coursescale->id . '\' (' . $coursescale->name . ') found [' . $coursescale->scale . ']';
-                        $tolog .= ( $coursescale->courseid ) ? ' (which is specific to course ' . $coursescale->courseid . ')' : ' (which is global)';
-                        $tolog .= '.';
-                        overnight::tlog($tolog, 'info');
+                        $tolog = '- Scale \'' . $course->scaleid . '\' (' . $course->scalename . ') found';
+                        $tolog .= ( $coursescale->courseid ) ? ' (which is specific to course ' . $coursescale->courseid . ').' : ' (which is global).';
+                        overnight::tlog( $tolog, 'info' );
 
                     } else {
 
                         // If the scale doesn't exist that the course is using, this is a problem.
-                        overnight::tlog('- Gradetype \'2\' set, but no matching scale found.', 'warn');
+                        overnight::tlog( '- Gradetype \'2\' set, but no matching scale found.', 'warn' );
 
                     }
 
-                } else if ( $gradeid == 1 ) {
+                } else if ( $course->gradeid == 1 ) {
                     // If the grade type is 1 / value.
                     $course->scalename  = 'noscale';
                     $course->scaleid    = 1;

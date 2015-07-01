@@ -31,6 +31,11 @@ defined('MOODLE_INTERNAL') || die();
 function get_auth_token() {
     global $DB;
 
+    // Fail gracefully if there's no appropriate config setting.
+    if ( !$auth_username = get_config( 'block_leap', 'auth_username' ) ) {
+        return false;
+    }
+
     $auth_token = $DB->get_record_sql('
         SELECT token, validuntil, enabled
         FROM {external_tokens}, {external_services}, {user}
@@ -47,13 +52,12 @@ function get_auth_token() {
             )
         ',
         array(
-            'username'      => get_config( 'block_leap', 'auth_username' ),
+            'username'      => $auth_username,
             'component'     => 'local_leapwebservices',
             'enabled'       => 1,
             'validuntil'    => time(),
         )
     );
 
-    //return $auth_token->token;
     return $auth_token;
 }
