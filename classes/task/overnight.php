@@ -27,6 +27,9 @@ namespace block_leap\task;
 defined('MOODLE_INTERNAL') || die();
 
 include_once( $CFG->dirroot . '/blocks/leap/locallib.php' );
+//include_once( $CFG->dirroot . '/lib/grade/grade_category.php' );
+require_once( $CFG->libdir . '/gradelib.php' );
+
 
 class overnight extends \core\task\scheduled_task {
 
@@ -213,11 +216,11 @@ class overnight extends \core\task\scheduled_task {
         echo "BEGIN >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n";
 
         /**
-         * A script, to be run via cron, to pull L3VA scores from Leap and generate
+         * A script, to be run overnight, to pull L3VA scores from Leap and generate
          * the MAG, for each student on specifically-tagged courses, and add it into
          * our live Moodle.
          *
-         * @copyright 2014 Paul Vaughan
+         * @copyright 2014-2015 Paul Vaughan
          * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
          */
 
@@ -229,7 +232,7 @@ class overnight extends \core\task\scheduled_task {
         $thiscourse = null; // null or e.g. 1234
 
         // TODO: can we use *all* the details in version.php? It would make a lot more sense.
-        $version    = '1.0.19';
+        $version    = '1.0.20';
         //$build      = '20150128';
         $build      = get_config( 'block_leap', 'version' );
 
@@ -242,7 +245,7 @@ class overnight extends \core\task\scheduled_task {
         // Truncate the log table.
         if ( TRUNCATE_LOG ) {
             echo 'Truncating block_leap_log...';
-            $DB->delete_records( 'block_leap_log', null );   
+            $DB->delete_records( 'block_leap_log', null );
             echo " done.\n";
         }
 
@@ -381,7 +384,7 @@ class overnight extends \core\task\scheduled_task {
         }
 
         foreach ( $allcourses as $course ) {
-            
+
             // Ignore the course with id = 1, as it's the front page.
             if ( $course->id == 1 ) {
                 continue;
@@ -393,18 +396,20 @@ class overnight extends \core\task\scheduled_task {
                 $blockinstance  = block_instance( 'leap', $blockrecord );
 
                 // Check and add trackertype and coursetype to the $course object.
-                if ( 
+                if (
                     isset( $blockinstance->config->trackertype ) &&
-                    !empty( $blockinstance->config->trackertype ) &&
-                    isset( $blockinstance->config->coursetype ) && 
-                    !empty( $blockinstance->config->coursetype ) ) 
+                    !empty( $blockinstance->config->trackertype ) )
+                    //!empty( $blockinstance->config->trackertype ) &&
+                    //isset( $blockinstance->config->coursetype ) &&
+                    //!empty( $blockinstance->config->coursetype ) )
                 {
                     $course->trackertype    = $blockinstance->config->trackertype;
-                    $course->coursetype     = $blockinstance->config->coursetype;
+                    //$course->coursetype     = $blockinstance->config->coursetype;
 
                     // Setting some more variables we'll need in due course.
                     $course->scalename      = null;
                     $course->scaleid        = null;
+                    $course->gradeid        = null;
 
                     // All good, so...
                     $courses[] = $course;
@@ -458,7 +463,6 @@ array(2) {
   }
 }
 
-
 */
 
         $num_courses = count( $courses );
@@ -483,13 +487,28 @@ array(2) {
             overnight::tlog('Processing course (' . $cur_courses . '/' . $num_courses . ') ' . $course->fullname . ' (' . $course->shortname . ') [' . $course->id . '] at ' . date( 'c', time() ) . '.', 'info');
             $logging['courses'][] = $course->fullname . ' (' . $course->shortname . ') [' . $course->id . '].';
 
+//overnight::tlog( $course->coursetype, 'PVDB' );
 
+
+/*
+We need to give serious thought to NOT doing this, as it's basically impossible to set the correct scale at this point.
+Grades and that:
+
+Develop / Pass - would be used for all pass only type qualifications but develop will be used instead of refer, retake, fail etc.
+U, G, F, E, D, C, B, A, A*  - to be used for GCSE / A-level plus any others that have letter grades.
+Refer, Pass, Merit, Distinction.
+Refer, PP, PM, MM, MD, DD
+Refer, PPP, PPM, PMM, MMM, MMD, MDD, DDD
+Numbers from 0 - 100 - in traffic light systems the numbers will be compared and anything lower than the target will be red, higher than target will be green.
+*/
+
+/*
             // Work out the scale from the course type.
-            if ( stristr( $course->coursetype, 'as' ) || stristr( $course->coursetype, 'a2' ) ) {
+            if ( stristr( $course->coursetype, 'as_' ) || stristr( $course->coursetype, 'a2_' ) ) {
                 $course->scalename  = 'A Level';
-            } else if ( stristr( $course->coursetype, 'gcse' ) ) {
+            } else if ( stristr( $course->coursetype, 'gcse_' ) ) {
                 $course->scalename  = 'GCSE';
-            } else if ( stristr( $course->coursetype, 'btec' ) ) {
+            } else if ( stristr( $course->coursetype, 'btec_' ) ) {
                 $course->scalename  = 'BTEC';
             }
             overnight::tlog( 'Course ' . $course->id . ' appears to be a ' . $course->scalename . ' course.', 'info' );
@@ -504,25 +523,37 @@ array(2) {
                 overnight::tlog( '- Scale called \'' . $course->scalename . '\' found with ID ' . $moodlescale->id . '.', 'info' );
             }
 
-
-
             overnight::tlog( json_encode( $course ), '>dbg');
             //var_dump($courses); exit(0);
+*/
 
-// Good to here.
+            overnight::tlog( json_encode( $course ), '>dbg');
 
 
-
-
-            // If we've found an A2 course, set the scale here.
-            //if ( !empty( $course->scalename ) ) {
-            //    $gradeid = 2;                   // Set this to scale.
-            //    $scaleid = $course->scaleid;    // Set this to what we pulled out of Moodle earlier.
-            //    overnight::tlog('- Grade ID \'' . $gradeid . '\' and scale ID \'' . $scaleid . '\' set.');
 
             // Figure out the grade type and scale here, pulled directly from the course's gradebook's course itemtype.
-            //} else if ( $coursegradescale = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' ) ) {
-            
+            $coursegradescale   = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' );
+            $course->gradeid    = $coursegradescale->gradetype;
+            $course->scaleid    = $coursegradescale->scaleid;
+            overnight::tlog( json_encode( $course ), 'PVDB' );
+
+            if ( $course->gradeid == 2 ) {
+                if ( $coursescale = $DB->get_record( 'scale', array( 'id' => $course->scaleid ) ) ) {
+                    $course->scalename  = $coursescale->name;
+
+                    $tolog = '- Scale \'' . $course->scaleid . '\' (' . $coursescale->name . ') found [' . $coursescale->scale . ']';
+                    $tolog .= ( $coursescale->courseid ) ? ' (which is specific to course ' . $coursescale->courseid . ').' : ' (which is global).';
+                    overnight::tlog( $tolog, 'info' );
+
+                } else {
+                    // If the scale doesn't exist that the course is using, this is a problem.
+                    overnight::tlog( '- Gradetype \'2\' set, but no matching scale found.', 'warn' );
+                }
+            }
+
+            overnight::tlog( json_encode( $course ), 'PVDB' );
+
+/*
             if ( $coursegradescale = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemtype' => 'course' ), 'gradetype, scaleid' ) ) {
 
                 $gradeid = $coursegradescale->gradetype;
@@ -576,34 +607,26 @@ array(2) {
             // for that course (e.g. 'cos it's a new course). Catch this earlier!
             $logging['grade_types'][strtolower($course->scalename)]++;
 
-
             /**
-             * Category checking or creation.
+             * Category checking: create or skip.
              */
             if ( $DB->get_record( 'grade_categories', array( 'courseid' => $course->id, 'fullname' => CATNAME ) ) ) {
                 // Category exists, so skip creation.
-                overnight::tlog('Category \'' . CATNAME . '\' already exists for course ' . $course->id . '.', 'skip');
+                overnight::tlog( 'Category \'' . CATNAME . '\' already exists for course ' . $course->id . '.', 'skip' );
 
             } else {
-                // Create a category for this course.
-                $grade_category = new \grade_category();
-
-                // Course id.
-                $grade_category->courseid = $course->id;
-
-                // Set the category name (no description).
-                $grade_category->fullname = CATNAME;
-
-                // Set the sort order (making this the first category in the gradebook, hopefully).
-                $grade_category->sortorder = 1;
+                $grade_category = new \grade_category();    // Create a category for this course.
+                $grade_category->courseid = $course->id;    // Course id.
+                $grade_category->fullname = CATNAME;        // Set the category name (no description).
+                $grade_category->sortorder = 1;             // Need a better way of changing column order.
+                $grade_category->hidden = 1;                // Attempting to hide the totals.
 
                 // Save all that...
                 if ( !$gc = $grade_category->insert() ) {
-                    overnight::tlog('Category \'' . CATNAME . '\' could not be inserted for course '.$course->id.'.', 'EROR');
-                    //exit(0);
+                    overnight::tlog( 'Category \'' . CATNAME . '\' could not be inserted for course '.$course->id.'.', 'EROR' );
                     return false;
                 } else {
-                    overnight::tlog('Category \'' . CATNAME . '\' (' . $gc . ') created for course '.$course->id.'.');
+                    overnight::tlog( 'Category \'' . CATNAME . '\' (' . $gc . ') created for course '.$course->id.'.' );
                 }
             }
 
@@ -618,74 +641,93 @@ array(2) {
             // and the grades counting towards the total course grade.
             $DB->set_field_select('grade_items', 'gradetype', 0, "courseid = " . $course->id . " AND itemtype = 'category' AND iteminstance = " . $cat_id);
 
+
             /**
-             * Column checking or creation.
+             * Column checking: create or update.
              */
+
             // Step through each column name.
             foreach ( $column_names as $col_name => $col_desc ) {
 
-                // Need to check for previously-created columns and skip creation if they already exist.
-                if ( $DB->get_record('grade_items', array( 'courseid' => $course->id, 'itemname' => $col_name, 'itemtype' => 'manual' ) ) ) {
-                    // Column exists, so skip creation.
-                    overnight::tlog('- Column \'' . $col_name . '\' already exists for course ' . $course->id . '.', 'skip');
+                // Need to check for previously-created columns and force an update if they already exist.
+                //if ( $DB->get_record('grade_items', array( 'courseid' => $course->id, 'itemname' => $col_name, 'itemtype' => 'manual' ) ) ) {
+                //    // Column exists, so update instead.
+                //    overnight::tlog('- Column \'' . $col_name . '\' already exists for course ' . $course->id . '.', 'skip');
 
-                } else {
-                    // Create a new item object.
-                    $grade_item = new \grade_item();
 
-                    // Course id.
-                    $grade_item->courseid = $course->id;
-                    // Set the category name (no description).
-                    $grade_item->itemtype = 'manual';
-                    // The item's name.
-                    $grade_item->itemname = $col_name;
-                    // Description of the item.
-                    $grade_item->iteminfo = $col_desc;
-                    // Set the immediate parent category.
-                    $grade_item->categoryid = $cat_id;
 
-                    // Don't want it hidden or locked (by default).
-                    $grade_item->hidden = 0;
-                    $grade_item->locked = 0;
+
+
+
+                //} else {
+                    $grade_item = new \grade_item();        // Create a new item object.
+                    $grade_item->courseid = $course->id;    // Course id.
+                    $grade_item->itemtype = 'manual';       // Set the category name (no description).
+                    $grade_item->itemname = $col_name;      // The item's name.
+                    $grade_item->iteminfo = $col_desc;      // Description of the item.
+                    $grade_item->categoryid = $cat_id;      // Set the immediate parent category.
+                    $grade_item->hidden = 0;                // Don't want it hidden (by default).
+                    $grade_item->locked = 1;                // Lock it (by default).
 
                     // Per-column specifics.
                     if ( $col_name == 'TAG' ) {
-                        $grade_item->sortorder  = 1;
-                        $grade_item->gradetype  = $gradeid;
-                        $grade_item->scaleid    = $scaleid;
-                        $grade_item->display    = 1; // 'Real'. MIGHT need to seperate out options for BTEC and A Level.
+                        $grade_item->sortorder  = 1;        // In-category sort order.
+                        //$grade_item->gradetype  = $course->gradeid;
+                        $grade_item->gradetype  = 3;        // Text field.
+                        //$grade_item->scaleid    = $course->scaleid;
+                        //$grade_item->display    = 1;        // 'Real'. MIGHT need to seperate out options for BTEC and A Level.
+                        $grade_item->display    = 0;        // No frills.
                     }
-                    if ( $col_name == 'L3VA' ) {
-                        // Lock the L3VA col as it's calculated elsewhere.
-                        $grade_item->sortorder  = 2;
-                        $grade_item->locked     = 1;
-                        $grade_item->decimals   = 0;
-                        $grade_item->display    = 1; // 'Real'.
-                    }
-                    if ( $col_name == 'MAG' ) {
-                        $grade_item->sortorder  = 3;
-                        //$grade_item->locked     = 1;
-                        $grade_item->gradetype  = $gradeid;
-                        $grade_item->scaleid    = $scaleid;
-                        $grade_item->display    = 1; // 'Real'.
-                    }
+                    //if ( $col_name == 'L3VA' ) {
+                    //    // Lock the L3VA col as it's calculated elsewhere.
+                    //    $grade_item->sortorder  = 2;
+                    //    $grade_item->locked     = 1;
+                    //    $grade_item->decimals   = 0;
+                    //    $grade_item->display    = 1; // 'Real'.
+                    //}
+                    //if ( $col_name == 'MAG' ) {
+                    //    $grade_item->sortorder  = 3;
+                    //    //$grade_item->locked     = 1;
+                    //    $grade_item->gradetype  = $gradeid;
+                    //    $grade_item->scaleid    = $scaleid;
+                    //    $grade_item->display    = 1; // 'Real'.
+                    //}
 
                     // Scale ID, generated earlier. An int, 0 or greater.
                     // TODO: Check if we need this any more!!
-                    $grade_item->scale = $scaleid;
+                    //$grade_item->scale = $course->scaleid;
 
-                    // Save it all.
-                    if ( !$gi = $grade_item->insert() ) {
-                        overnight::tlog('- Column \'' . $col_name . '\' could not be inserted for course ' . $course->id . '.', 'EROR');
-                        //exit(0);
-                        return false;
+                    // Check to see if this record already exists, determining if we insert or update.
+                    if ( !$grade_items_exists = $DB->get_record( 'grade_items', array( 'courseid' => $course->id, 'itemname' => $col_name, 'itemtype' => 'manual' ) ) ) {
+
+                        // INSERT a new record.
+                        if ( !$gi = $grade_item->insert() ) {
+                            overnight::tlog('- Column \'' . $col_name . '\' could not be inserted for course ' . $course->id . '.', 'EROR');
+                            return false;
+                        } else {
+                            overnight::tlog('- Column \'' . $col_name . '\' created for course ' . $course->id . '.');
+                        }
+
                     } else {
-                        overnight::tlog('- Column \'' . $col_name . '\' created for course ' . $course->id . '.');
+                        // UPDATE the existing record.
+                        $grade_item->id = $grade_items_exists->id;
+                        if ( !$gi = $grade_item->update() ) {
+                            overnight::tlog('- Column \'' . $col_name . '\' could not be updated for course ' . $course->id . '.', 'EROR');
+                            return false;
+                        } else {
+                            overnight::tlog('- Column \'' . $col_name . '\' updated for course ' . $course->id . '.');
+                        }
                     }
 
-                } // END skip processing if manual column(s) already found in course.
+
+                //} // END skip processing if manual column(s) already found in course.
 
             } // END while working through each rquired column.
+
+
+
+// Good to here.
+
 
 
             /**
@@ -781,20 +823,21 @@ array(2) {
                             } else {
 
                                 // We have a L3VA score! And possibly GCSE English and maths grades too.
-                                $targets['l3va']    = number_format( $leapdata->person->l3va, DECIMALS );
-                                $gcse['english']    = $leapdata->person->gcse_english;
-                                $gcse['maths']      = $leapdata->person->gcse_maths;
+                                //$targets['l3va']    = number_format( $leapdata->person->l3va, DECIMALS );
+                                //$gcse['english']    = $leapdata->person->gcse_english;
+                                //$gcse['maths']      = $leapdata->person->gcse_maths;
 
-                                if ( $targets['l3va'] == '' || !is_numeric( $targets['l3va'] ) || $targets['l3va'] <= 0 ) {
-                                    // If the L3VA isn't good.
-                                    overnight::tlog('-- L3VA is not good: \'' . $targets['l3va'] . '\'.', 'warn');
-                                    $logging['no_l3va'][$enrollee->userid] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '].';
-
-                                } else {
+                                //if ( $targets['l3va'] == '' || !is_numeric( $targets['l3va'] ) || $targets['l3va'] <= 0 ) {
+                                //    // If the L3VA isn't good.
+                                //    overnight::tlog('-- L3VA is not good: \'' . $targets['l3va'] . '\'.', 'warn');
+                                //    $logging['no_l3va'][$enrollee->userid] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '].';
+                                //
+                                //} else {
 
                                     overnight::tlog('-- ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '] L3VA score: ' . $targets['l3va'] . '.', 'info');
 
                                     // If this course is tagged as a GCSE English or maths course, use the grades supplied in the JSON.
+/*
                                     if ( $course->coursetype == 'leapcore_gcse_english' ) {
                                         $magtemp        = overnight::make_mag( $gcse['english'], $course->coursetype, $course->scalename );
                                         $tagtemp        = array( null, null );
@@ -812,7 +855,9 @@ array(2) {
                                     }
                                     $targets['mag'] = $magtemp[0];
                                     $targets['tag'] = $tagtemp[0];
+*/
 
+/*
                                     if ( $course->coursetype == 'leapcore_gcse_english' || $course->coursetype == 'leapcore_gcse_maths' ) {
                                         overnight::tlog('--- GCSEs passed through from Leap JSON: MAG: \'' . $targets['mag'] . '\' ['. $magtemp[1] .']. TAG: \'' . $targets['tag'] . '\' ['. $tagtemp[1] .'].', 'info');
                                     } else {
@@ -825,8 +870,8 @@ array(2) {
                                     if ( $targets['tag'] == '0' || $targets['tag'] == '1' ) {
                                         $logging['poor_grades'][] = 'TAG ' . $targets['tag'] . ' assigned to ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . '.';
                                     }
-
-                                    // Loop through all three settable, updateable grades.
+*/
+                                    // Loop through all settable, updateable grades.
                                     foreach ( $targets as $target => $score ) {
 
                                         // Need the grade_items.id for grade_grades.itemid.
@@ -841,6 +886,7 @@ array(2) {
                                             'userid' => $enrollee->userid,
                                         ), 'id');
 
+
                                         // New grade_grade object.
                                         $grade = new grade_grade();
                                         $grade->userid          = $enrollee->userid;
@@ -850,6 +896,9 @@ array(2) {
                                         $grade->finalgrade      = $score; // Will change with the grade, e.g. 3.
                                         $grade->timecreated     = time();
                                         $grade->timemodified    = $grade->timecreated;
+
+                                        // TODO: "excluded" is a thing and prevents a grade being aggregated.
+                                        $grade->excluded    = true;
 
                                         // If no id exists, INSERT.
                                         if ( !$gradegrade ) {
@@ -866,7 +915,7 @@ array(2) {
                                             if ( $target == 'mag' && !$score ) {
                                                 // For MAGs, we don't want to update to a zero or null score as that may overwrite a manually-entered MAG.
                                                 overnight::tlog('--- ' . strtoupper( $target ) . ' of 0 or null (' . $score . ') purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
-                                                $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.'; 
+                                                $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.';
 
                                             } else if ( $target != 'tag' ) {
                                                 $grade->id = $gradegrade->id;
@@ -890,7 +939,7 @@ array(2) {
 
                                     } // END foreach loop.
 
-                                } // END L3VA check.
+                                //} // END L3VA check.
 
                             } // END any json_decode errors.
 

@@ -24,12 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version        = 2015061109;
+$plugin->version        = 2015070100;
 $plugin->requires       = 2014051200;               // Requires Moodle 2.7 or newer.
 $plugin->component      = 'block_leap';
 $plugin->maturity       = MATURITY_ALPHA;
 $plugin->release        = '1.0.20';
 $plugin->dependencies   = array (
-    'local_leapwebservices'     => 2014112400,      // Needs the Leap web services local plugin.
+    'local_leapwebservices'     => 2015062500,      // Needs the Leap web services local plugin.
 );
 //$plugin->cron           = 60;
