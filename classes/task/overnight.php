@@ -863,12 +863,12 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
                                         } else {
                                             // If the row already exists, UPDATE, but don't ever *update* the TAG.
 
-                                            if ( $target == 'mag' && !$score ) {
-                                                // For MAGs, we don't want to update to a zero or null score as that may overwrite a manually-entered MAG.
-                                                overnight::tlog('--- ' . strtoupper( $target ) . ' of 0 or null (' . $score . ') purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
-                                                $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.';
+                                            //if ( $target == 'mag' && !$score ) {
+                                            //    // For MAGs, we don't want to update to a zero or null score as that may overwrite a manually-entered MAG.
+                                            //    overnight::tlog('--- ' . strtoupper( $target ) . ' of 0 or null (' . $score . ') purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
+                                            //    $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.';
 
-                                            } else if ( $target != 'tag' ) {
+                                            //} else if ( $target != 'tag' ) {
                                                 $grade->id = $gradegrade->id;
 
                                                 // We don't want to set this again, but we do want the modified time set.
@@ -881,10 +881,10 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
                                                     overnight::tlog('--- ' . strtoupper( $target ) . ' (' . $score . ') update for user ' . $enrollee->userid . ' on course ' . $course->id . '.' );
                                                 }
 
-                                            } else {
-                                                overnight::tlog('--- ' . strtoupper( $target ) . ' purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'skip' );
-                                                $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.';
-                                            } // END ignore updating the TAG.
+                                            //} else {
+                                            //    overnight::tlog('--- ' . strtoupper( $target ) . ' purposefully not updated for user ' . $enrollee->userid . ' on course ' . $course->id . '.', 'skip' );
+                                            //    $logging['not_updated'][] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '] on course ' . $course->id . ': ' . strtoupper( $target ) . ' of \'' . $score . '\'.';
+                                            //} // END ignore updating the TAG.
 
                                         } // END insert or update check.
 
@@ -1001,7 +1001,6 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
             overnight::tlog( 'No poor grades found. Good!', 'smry' );
         }
 
-
         // Finish time.
         $time_end = microtime(true);
         $duration = $time_end - $time_start;
@@ -1011,19 +1010,8 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
         overnight::tlog('', '----');
         overnight::tlog('Finished at ' . date( 'c', $time_end ) . ', took ' . $mins . $secs . ' (' . number_format( $duration, DECIMALS ) . ' seconds).', 'byby');
 
-
         //exit(0);
         return true;
-
-
-
-
-
-
-
-
-
-
 
         echo "\nEND   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 
