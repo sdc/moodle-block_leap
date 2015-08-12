@@ -20,8 +20,8 @@
     <TABLE NAME="block_leap_coursecodes" COMMENT="Containing all course codes to be looked up via the block.">
       <FIELDS>
         <FIELD NAME="id"    TYPE="int"  LENGTH="10"   NOTNULL="true"  SEQUENCE="true"/>
-        <FIELD NAME="code"  TYPE="char" LENGTH="25"   NOTNULL="true"  SEQUENCE="false"  COMMENT="Course code, as found in Leap."/>
-        <FIELD NAME="name"  TYPE="char" LENGTH="100"  NOTNULL="true"  SEQUENCE="false"  COMMENT="Course name, as found in Leap."/>
+        <FIELD NAME="code"  TYPE="char" LENGTH="20"   NOTNULL="true"  SEQUENCE="false"  COMMENT="Course code, as found in Leap/EBS."/>
+        <FIELD NAME="name"  TYPE="char" LENGTH="500"  NOTNULL="true"  SEQUENCE="false"  COMMENT="Course name, as found in Leap/EBS."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
