@@ -742,9 +742,9 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
 
                     // Assemble the URL with the correct data.
                     $leapdataurl = sprintf( LEAP_API_URL, $enrollee->studentid, AUTH_TOKEN );
-                    if ( DEBUG ) {
+                    //if ( DEBUG ) {
                         overnight::tlog('-- Leap URL: ' . $leapdataurl, 'dbug');
-                    }
+                    //}
 
                     // Use fopen to read from the API.
                     if ( !$handle = fopen($leapdataurl, 'r') ) {

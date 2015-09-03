@@ -27,7 +27,7 @@ defined( 'MOODLE_INTERNAL' ) || die();
 include_once( 'locallib.php' );
 
 class block_leap extends block_base {
-    
+
     public function init() {
         $this->title = get_string( 'pluginname', 'block_leap' );
     }
@@ -83,7 +83,7 @@ class block_leap extends block_base {
                 get_config( 'leap_url', $tmp_leap_url, 'block_leap' );
             }
         }
-     
+
         $this->content          =  new stdClass;
         $this->content->text    = '';
         $this->content->footer  = '';
@@ -98,8 +98,9 @@ class block_leap extends block_base {
            exit;
         }
 
-        $this->content->text   = '<p style="text-align:center;"><img src="'.$CFG->wwwroot.'/blocks/leap/pix/logo.png"></p>';
+        $this->content->text   = '<p style="text-align:center;"><a target="_blank" href="' . get_config( 'block_leap', 'leap_url' ) . '"><img src="'.$CFG->wwwroot.'/blocks/leap/pix/logo.png"></a></p>';
 
+/*
         // TODO: Apparently the best way forward is to roll our own capabilities. Maybe one day.
         //if( has_capability( 'block/leap:editconfig', $coursecontext ) ) {
 
@@ -142,18 +143,18 @@ class block_leap extends block_base {
 
                     // Checking for a valid user for a specific, enabled component.
                     $auth_token = get_auth_token();
-                    /*
-                    $auth_token = $DB->get_record_sql('
-                        SELECT token, validuntil, enabled
-                        FROM {external_tokens}, {external_services}
-                        WHERE {external_tokens}.externalserviceid = {external_services}.id
-                            AND {external_services}.component = :component
-                            AND {external_services}.enabled = :enabled
-                            AND {external_tokens}.userid = :userid
-                        ',
-                        array( 'component' => 'local_leapwebservices', 'enabled' => 1, 'userid' => $auth_userid->id )
-                        );
-                    */
+
+                    //$auth_token = $DB->get_record_sql('
+                    //    SELECT token, validuntil, enabled
+                    //    FROM {external_tokens}, {external_services}
+                    //    WHERE {external_tokens}.externalserviceid = {external_services}.id
+                    //        AND {external_services}.component = :component
+                    //        AND {external_services}.enabled = :enabled
+                    //        AND {external_tokens}.userid = :userid
+                    //    ',
+                    //    array( 'component' => 'local_leapwebservices', 'enabled' => 1, 'userid' => $auth_userid->id )
+                    //    );
+                    //
 
                     if ( empty( $auth_token ) ) {
                         // No external token found in the database for that user.
@@ -183,8 +184,9 @@ class block_leap extends block_base {
             $this->content->text .= '<hr>';
 
         } // END block sanity checks.
+*/
 
-
+/*
         // Quick report on what the block has been set to, for admins and teachers.
         if( has_capability( 'moodle/site:config', $coursecontext ) || has_capability( 'moodle/course:update', $coursecontext ) ) {
 
@@ -213,9 +215,10 @@ class block_leap extends block_base {
             $this->content->text .= $build;
 
         } // END quick report.
+*/
 
-
-        /* Doing actual block stuff here. */
+/*
+        // Doing actual block stuff here.
         if( has_capability( 'moodle/site:config', $coursecontext ) ) {
             $this->content->text .= '<p>This user is a Site Admin.</p>';
 
@@ -225,6 +228,7 @@ class block_leap extends block_base {
         } else {
             $this->content->text .= '<p>This user is a Student.</p>';
         }
+*/
 
         return $this->content;
     }
