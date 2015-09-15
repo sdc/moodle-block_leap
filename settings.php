@@ -30,12 +30,20 @@ $settings->add( new admin_setting_configtext(
     PARAM_URL
 ));
 
+//$settings->add( new admin_setting_configtext(
+//    'block_leap/auth_username',
+//    get_string( 'auth_username', 'block_leap' ),
+//    get_string( 'auth_username_desc', 'block_leap' ),
+//    '',
+//    PARAM_USERNAME
+//));
+
 $settings->add( new admin_setting_configtext(
-    'block_leap/auth_username',
-    get_string( 'auth_username', 'block_leap' ),
-    get_string( 'auth_username_desc', 'block_leap' ),
+    'block_leap/auth_token',
+    get_string( 'auth_token', 'block_leap' ),
+    get_string( 'auth_token_desc', 'block_leap' ),
     '',
-    PARAM_USERNAME
+    PARAM_RAW
 ));
 
 $choices = array( 0 => 'No', 1 => 'Yes' );

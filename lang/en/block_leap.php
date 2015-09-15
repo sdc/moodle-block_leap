@@ -28,8 +28,11 @@ $string['addinstance']          = 'Add a new Leap block';
 $string['leap_url']             = 'Leap installation URL';
 $string['leap_url_desc']        = 'The URL (web address) of your Leap installation (e.g. <code>http://leap.southdevon.ac.uk</code>). Do not use a trailing slash.';
 
-$string['auth_username']        = '"Leap user" username';
-$string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the <a href="https://github.com/sdc/moodle-local_leapwebservices" target="_blank">Leap Webservices plugin</a>.';
+//$string['auth_username']        = '"Leap user" username';
+//$string['auth_username_desc']   = 'The username of the webservice-privileged "Leap user" you set up when installing the <a href="https://github.com/sdc/moodle-local_leapwebservices" target="_blank">Leap Webservices plugin</a>.';
+
+$string['auth_token']        	= 'Leap Web Services Token';
+$string['auth_token_desc']   	= 'The token, from Leap\'s "Web Services" configuration settings, allowing a data request without authentication. Ensure it is kept secret.';
 
 $string['generate_mag']         = 'MAG generation';
 $string['generate_mag_desc']    = 'If Yes, will create gradebook columns for Minimum Achievable Grades and generate the grade from the LAT score stored in Leap. Otherwise, will not create and populate gradebook columns.';
