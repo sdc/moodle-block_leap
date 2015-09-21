@@ -28,11 +28,15 @@ $tasks = array(
     array(
         'classname' => 'block_leap\task\overnight',
         'blocking'  => 0,
-        ////'minute'    => '0',
-        //'minute'    => '*/1',
-        ////'hour'      => '2',
-        'minute'    => '*/30',
+
+        // Testing
+        //'minute'    => '0',
+        //'hour'      => '2',
+
+        // Production.
+        'minute'    => '*/5',
         'hour'      => '*',
+
         'day'       => '*',
         'dayofweek' => '*',
         'month'     => '*'

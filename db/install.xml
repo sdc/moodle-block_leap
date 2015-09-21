@@ -9,7 +9,7 @@
       <FIELDS>
         <FIELD NAME="id"          TYPE="int"  LENGTH="10"   NOTNULL="true"                  SEQUENCE="true"/>
         <FIELD NAME="type"        TYPE="char" LENGTH="4"    NOTNULL="true"  DEFAULT="----"  SEQUENCE="false"  COMMENT="Short code for what type of information is contained in this row."/>
-        <FIELD NAME="content"     TYPE="char" LENGTH="255"  NOTNULL="true"                  SEQUENCE="false"  COMMENT="Content of the message."/>
+        <FIELD NAME="content"     TYPE="char" LENGTH="2048" NOTNULL="true"                  SEQUENCE="false"  COMMENT="Content of the message."/>
         <FIELD NAME="timelogged"  TYPE="int"  LENGTH="10"   NOTNULL="true"                  SEQUENCE="false"  COMMENT="Unix epoch timestamp."/>
       </FIELDS>
       <KEYS>

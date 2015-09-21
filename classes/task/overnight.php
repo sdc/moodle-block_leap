@@ -230,21 +230,12 @@ class overnight extends \core\task\scheduled_task {
             }
         }
 
-        // Check for required config settings and fail gracefully if they're not available.
-        if ( !$auth_token = get_auth_token() ) {
-            overnight::tlog( 'Could not find a valid auth token.', 'EROR' );
-            return false;
-        }
-        define( 'AUTH_TOKEN', $auth_token->token );
-        overnight::tlog( 'Leap webservice auth hash: ' . AUTH_TOKEN, 'dbug' );
 
-        // TODO: quick check to make sure the URL is real and pingable?
-        if ( !$leap_url = get_config( 'block_leap', 'leap_url' ) ) {
-            overnight::tlog( 'Setting "leap_url" not set.', 'EROR' );
-            return false;
-        }
-        define( 'LEAP_API_URL', $leap_url . '/people/%s.json?token=%s' );
-        overnight::tlog( 'Leap API URL: ' . LEAP_API_URL, 'dbug' );
+        $leap_url = get_config( 'block_leap', 'leap_url' );
+        $auth_token = get_config( 'block_leap', 'auth_token' );
+        define( 'LEAP_API_URL', $leap_url . '/people/%s/views/courses.json?token=' . $auth_token );
+        //overnight::tlog( 'Leap API URL: ' . LEAP_API_URL, 'dbug' );
+
 
         // Number of decimal places in the processed targets (and elsewhere).
         define( 'DECIMALS', 3 );
@@ -325,16 +316,48 @@ class overnight extends \core\task\scheduled_task {
 
         overnight::tlog( '', '----' );
 
-        // An empty array to put suitable course objects into.
-        $courses = array();
+        $courses = $DB->get_records( 'course', null, null, 'id,shortname,fullname' );
 
-        // Get the courses we're going to process.
-        if ( $thiscourse ) {
-            $allcourses = $DB->get_records( 'course', array( 'id' => $thiscourse ), 'id ASC', 'id, shortname, fullname' );
-        } else {
-            $allcourses = $DB->get_records( 'course', null, 'id ASC', 'id, shortname, fullname' );
-        }
+        $allcourses = array();
+        foreach ( $courses as $course ) {
+            if ( $course->id != 1 ) {
 
+                $coursecontext = \context_course::instance( $course->id );
+                if ( !$blockrecord = $DB->get_record( 'block_instances', array( 'blockname' => 'leap', 'parentcontextid' => $coursecontext->id ) ) ) {
+                    if ( DEBUG ) {
+                        overnight::tlog( 'No Leap block found for course "' . $course->id . '" (' . $course->shortname . ')', 'dbug');
+                    }
+                    continue;
+                }
+
+                if ( !$blockinstance = block_instance( 'leap', $blockrecord ) ) {
+                    if ( DEBUG ) {
+                        overnight::tlog( 'No Leap block instance found for course "' . $course->id . '" (' . $course->shortname . ')', 'dbug');
+                    }
+                    continue;
+                }
+
+                if ( isset ( $blockinstance->config->trackertype ) && !empty( $blockinstance->config->trackertype ) ) {
+
+                    $course->trackertype    = $blockinstance->config->trackertype;
+                    $course->scalename      = null;
+                    $course->scaleid        = null;
+                    $course->gradeid        = null;
+                    $allcourses[] = $course;
+                    if ( DEBUG ) {
+                        overnight::tlog( 'Tracker "' . $blockinstance->config->trackertype . '" found in course ' . $course->id . ' (' . $course->shortname . ')', 'dbug');
+                    }
+                } else {
+                    if ( DEBUG ) {
+                        overnight::tlog( '<Tracker not found in course ' . $course->id . ' (' . $course->shortname . ')', 'dbug');
+                    }
+                }
+
+
+            } // END if $course != 1
+        } // END foreach $courses as $course
+
+/*
         foreach ( $allcourses as $course ) {
 
             // Ignore the course with id = 1, as it's the front page.
@@ -374,6 +397,8 @@ class overnight extends \core\task\scheduled_task {
                 }
             }
         }
+
+*/
 
 //var_dump($courses); exit(0);
 
@@ -417,7 +442,7 @@ array(2) {
 
 */
 
-        $num_courses = count( $courses );
+        $num_courses = count( $allcourses );
         $cur_courses = 0;
         if ( $num_courses == 0 ) {
             overnight::tlog( 'No courses found to process, so halting.', 'EROR');
@@ -432,7 +457,7 @@ array(2) {
          * Sets up each configured course with a category and columns within it.
          */
 
-        foreach ( $courses as $course ) {
+        foreach ( $allcourses as $course ) {
 
             $cur_courses++;
 
@@ -699,7 +724,7 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
                 FROM mdl_user u
                     JOIN mdl_user_enrolments ue ON ue.userid = u.id
                     JOIN mdl_enrol e ON e.id = ue.enrolid
-                        -- AND e.enrol = 'manual'
+                        -- AND e.enrol = 'leap'
                     JOIN mdl_role_assignments ra ON ra.userid = u.id
                     JOIN mdl_context ct ON ct.id = ra.contextid
                         AND ct.contextlevel = 50
@@ -719,12 +744,12 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
                 ORDER BY userid ASC;";
 
             if ( !$enrollees = $DB->get_records_sql( $sql ) ) {
-                overnight::tlog('No manually enrolled students found for course ' . $course->id . '.', 'warn');
+                overnight::tlog('No enrolled students found for course ' . $course->id . '.', 'warn');
 
             } else {
 
                 $num_enrollees = count($enrollees);
-                overnight::tlog('Found ' . $num_enrollees . ' students manually enrolled onto course ' . $course->id . '.', 'info');
+                overnight::tlog('Found ' . $num_enrollees . ' students enrolled onto course ' . $course->id . '.', 'info');
 
                 // A variable to store which enrollee we're processing.
                 $cur_enrollees = 0;
@@ -741,9 +766,9 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
                     $logging['students_unique'][$enrollee->userid] = $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->studentid . ') [' . $enrollee->userid . '].';
 
                     // Assemble the URL with the correct data.
-                    $leapdataurl = sprintf( LEAP_API_URL, $enrollee->studentid, AUTH_TOKEN );
+                    $leapdataurl = sprintf( LEAP_API_URL, $enrollee->studentid );
                     //if ( DEBUG ) {
-                        overnight::tlog('-- Leap URL: ' . $leapdataurl, 'dbug');
+                    //    overnight::tlog('-- Leap URL: ' . $leapdataurl, 'dbug');
                     //}
 
                     // Use fopen to read from the API.
@@ -785,7 +810,8 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
                                 //
                                 //} else {
 
-                                    overnight::tlog('-- ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '] L3VA score: ' . $targets['l3va'] . '.', 'info');
+                                    //overnight::tlog('-- ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '] L3VA score: ' . $targets['l3va'] . '.', 'info');
+                                    overnight::tlog('-- ' . $enrollee->firstname . ' ' . $enrollee->lastname . ' (' . $enrollee->userid . ') [' . $enrollee->studentid . '].', 'info');
 
                                     // If this course is tagged as a GCSE English or maths course, use the grades supplied in the JSON.
 /*
@@ -839,7 +865,7 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
 
 
                                         // New grade_grade object.
-                                        $grade = new grade_grade();
+                                        $grade = new \grade_grade();
                                         $grade->userid          = $enrollee->userid;
                                         $grade->itemid          = $gradeitem->id;
                                         $grade->categoryid      = $gradeitem->categoryid;
@@ -954,7 +980,7 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
             $count = 0;
             foreach ( $logging['students_unique'] as $student ) {
                 echo sprintf( '%4s', ++$count ) . ': ' . $student . "\n";
-                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $student, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', $count ) . ': ' . $student, 'smry' );
             }
         } else {
             overnight::tlog( 'No unique students processed.', 'warn' );
@@ -965,7 +991,7 @@ Numbers from 0 - 100 - in traffic light systems the numbers will be compared and
             $count = 0;
             foreach ( $logging['no_l3va'] as $no_l3va ) {
                 echo sprintf( '%4s', ++$count ) . ': ' . $no_l3va . "\n";
-                overnight::tlog( '- ' . sprintf( '%4s', ++$count ) . ': ' . $no_l3va, 'smry' );
+                overnight::tlog( '- ' . sprintf( '%4s', $count ) . ': ' . $no_l3va, 'smry' );
             }
         } else {
             overnight::tlog( 'No missing L3VAs.', 'warn' );
